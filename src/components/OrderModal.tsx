@@ -26,7 +26,7 @@ export default function OrderModal({ product, onClose }: Props) {
     pixelTrack('InitiateCheckout', {
       content_ids: [product.id],
       value: product.price,
-      currency: 'RUB',
+      currency: 'KZT',
     }, eventId)
 
     fetch('/api/capi', {
@@ -40,7 +40,7 @@ export default function OrderModal({ product, onClose }: Props) {
         customData: {
           content_ids: [product.id],
           value: product.price,
-          currency: 'RUB',
+          currency: 'KZT',
         },
       }),
     })
@@ -59,7 +59,7 @@ export default function OrderModal({ product, onClose }: Props) {
     pixelTrack('Lead', {
       content_ids: [product.id],
       value: product.price,
-      currency: 'RUB',
+      currency: 'KZT',
     }, eventId)
 
     // CAPI — Lead с хешированными данными пользователя
@@ -74,7 +74,7 @@ export default function OrderModal({ product, onClose }: Props) {
         customData: {
           content_ids: [product.id],
           value: product.price,
-          currency: 'RUB',
+          currency: 'KZT',
         },
       }),
     })
@@ -128,7 +128,7 @@ export default function OrderModal({ product, onClose }: Props) {
 
             <div className="bg-gray-50 rounded-xl p-4 mb-5 flex justify-between items-center">
               <span className="text-sm text-gray-600">Итого к оплате:</span>
-              <span className="font-bold text-lg">{product.price.toLocaleString('ru-RU')} ₽</span>
+              <span className="font-bold text-lg">{product.price.toLocaleString('ru-RU')} ₸</span>
             </div>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">

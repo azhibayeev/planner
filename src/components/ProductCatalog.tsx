@@ -4,9 +4,11 @@ import { useState } from 'react'
 import { products, Product } from '@/lib/products'
 import ProductCard from './ProductCard'
 import OrderModal from './OrderModal'
+import ProductDetailModal from './ProductDetailModal'
 
 export default function ProductCatalog() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [detailProduct, setDetailProduct] = useState<Product | null>(null)
 
   return (
     <section id="catalog" className="py-16 px-4 bg-white">
@@ -22,10 +24,19 @@ export default function ProductCatalog() {
               key={product.id}
               product={product}
               onBuy={(p) => setSelectedProduct(p)}
+              onViewDetails={(p) => setDetailProduct(p)}
             />
           ))}
         </div>
       </div>
+
+      {detailProduct && (
+        <ProductDetailModal
+          product={detailProduct}
+          onClose={() => setDetailProduct(null)}
+          onBuy={(p) => { setDetailProduct(null); setSelectedProduct(p) }}
+        />
+      )}
 
       {selectedProduct && (
         <OrderModal
