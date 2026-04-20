@@ -1,7 +1,5 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 // Ссылки «Сделать копию» для каждого продукта
 const PRODUCT_LINKS: Record<string, { name: string; copyUrl: string }> = {
   'habit-tracker': {
@@ -128,6 +126,7 @@ function buildEmailHtml(productId: string): string {
 }
 
 export async function sendOrderEmail(to: string, productId: string): Promise<void> {
+  const resend = new Resend(process.env.RESEND_API_KEY)
   const isBundle = productId === 'bundle-all'
   const product = PRODUCT_LINKS[productId]
   const subject = isBundle
