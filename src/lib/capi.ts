@@ -1,6 +1,10 @@
-import crypto from 'crypto'
+import * as crypto from 'crypto'
 
 export function sha256(value: string): string {
+  // Если строка уже является SHA-256 хэшем (64 символа, только 0-9 и a-f), возвращаем как есть
+  const isAlreadyHashed = /^[a-f0-9]{64}$/.test(value);
+  if (isAlreadyHashed) return value;
+
   return crypto
     .createHash('sha256')
     .update(value.trim().toLowerCase())

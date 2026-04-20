@@ -31,16 +31,14 @@ export async function POST(req: Request) {
         .eq('order_id', order_id);
 
       // 4. ОТПРАВЛЯЕМ PURCHASE В META CAPI
-      // Теперь Facebook увидит, что этот конкретный IP/Email реально купил!
       await sendCapiEvent({
         eventName: 'Purchase',
         eventId: order_id,
         sourceUrl: 'https://myplaner.asia',
         userData: {
-          em: order.email, // Уже хэширован при сохранении
-          ph: order.phone, // Уже хэширован
-          client_ip_address: order.ip_address,
-          client_user_agent: order.user_agent,
+          email: order.email,    // в capi.ts это 'email', а не 'em'
+          ip: order.ip_address,  // в capi.ts это 'ip', а не 'client_ip_address'
+          userAgent: order.user_agent, // в capi.ts это 'userAgent'
           fbp: order.fbp,
           fbc: order.fbc
         },
