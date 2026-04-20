@@ -5,7 +5,7 @@ import * as crypto from 'crypto';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { email, phone, amount, items } = body;
+    const { email, phone, amount, product_id } = body
 
     // 1. Генерируем уникальный ID заказа
     const orderId = `order_${Date.now()}`;
@@ -28,10 +28,13 @@ export async function POST(req: Request) {
     const { error: sbError } = await supabaseAdmin
       .from('orders')
       .insert([
-        { 
-          order_id: orderId, 
-          email: hashedEmail, 
+        {
+          order_id: orderId,
+          email: hashedEmail,
+          email_plain: email,
           phone: hashedPhone,
+          amount: amount,
+          product_id: product_id,
           ip_address: ip,
           user_agent: userAgent,
           fbp: fbp,
@@ -54,7 +57,8 @@ export async function POST(req: Request) {
         amount: amount,
         order_id: orderId,
         description: 'Оплата заказа в MyPlaner',
-        callback_url: `https://myplaner.asia/api/webhooks/apipay` // Куда придет уведомление
+        callback_url: 'https://myplaner.asia/api/webhooks/apipay',
+        success_url: 'https://myplaner.asia/success'
       })
     });
 
