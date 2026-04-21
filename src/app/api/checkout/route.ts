@@ -78,12 +78,8 @@ export async function POST(req: Request) {
   const apiPayData = await apiPayResponse.json();
   console.log('ApiPay Success Response:', JSON.stringify(apiPayData));
 
-  const paymentUrl = apiPayData.payment_url || apiPayData.url || apiPayData.payment_link || apiPayData.link;
-  if (!paymentUrl) {
-    throw new Error(`ApiPay: no payment URL in response. Keys: ${Object.keys(apiPayData).join(', ')}`);
-  }
-
-  return NextResponse.json({ url: paymentUrl });
+  // ApiPay отправляет push в Kaspi-приложение — redirect URL не возвращается
+  return NextResponse.json({ success: true, invoiceId: apiPayData.id });
 
   } catch (error: any) {
     console.error('Checkout Error:', error);

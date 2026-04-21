@@ -16,6 +16,7 @@ export default function OrderModal({ product, onClose }: Props) {
   const [phone, setPhone] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [sent, setSent] = useState(false)
 
   // InitiateCheckout при открытии
   useEffect(() => {
@@ -94,8 +95,8 @@ export default function OrderModal({ product, onClose }: Props) {
 
       const data = await response.json()
 
-      if (data.url) {
-        window.location.href = data.url
+      if (data.success) {
+        setSent(true)
       } else {
         setError(data.error || 'Ошибка при создании заказа. Попробуйте ещё раз.')
       }
@@ -108,6 +109,27 @@ export default function OrderModal({ product, onClose }: Props) {
   }
 
   if (!product) return null
+
+  if (sent) return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div className="bg-white rounded-2xl w-full max-w-md p-8 shadow-2xl text-center">
+        <div className="text-5xl mb-4">✅</div>
+        <h2 className="text-xl font-bold mb-2">Счёт выставлен!</h2>
+        <p className="text-gray-600 text-sm mb-6">
+          Откройте приложение <strong>Kaspi</strong> на вашем телефоне и подтвердите оплату во вкладке «Платежи».
+        </p>
+        <button
+          onClick={onClose}
+          className="w-full bg-black text-white font-semibold py-3 rounded-xl hover:bg-gray-800 transition-colors"
+        >
+          Понятно
+        </button>
+      </div>
+    </div>
+  )
 
   return (
     <div
