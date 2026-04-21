@@ -76,10 +76,14 @@ export async function POST(req: Request) {
   }
 
   const apiPayData = await apiPayResponse.json();
-  return NextResponse.json({ url: apiPayData.payment_url });
+  console.log('ApiPay Success Response:', JSON.stringify(apiPayData));
 
-    // 6. Возвращаем ссылку на оплату на фронтенд
-    return NextResponse.json({ url: apiPayData.payment_url });
+  const paymentUrl = apiPayData.payment_url || apiPayData.url || apiPayData.payment_link || apiPayData.link;
+  if (!paymentUrl) {
+    throw new Error(`ApiPay: no payment URL in response. Keys: ${Object.keys(apiPayData).join(', ')}`);
+  }
+
+  return NextResponse.json({ url: paymentUrl });
 
   } catch (error: any) {
     console.error('Checkout Error:', error);
