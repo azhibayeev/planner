@@ -8,10 +8,42 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 }
 
+const SITE_URL = 'https://myplaner.asia'
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: 'Planer.Shop — Google Таблицы для продуктивности',
-  description:
-    'Купи готовую Google Таблицу для планирования, учёта бюджета или трекинга привычек. Доступ навсегда, без установок.',
+  description: 'Готовые Google Таблицы для трекинга привычек, задач, финансов и планирования. Купи один раз — доступ навсегда. Уже используют 500+ казахстанцев.',
+  alternates: {
+    canonical: SITE_URL,
+  },
+  openGraph: {
+    title: 'Planer.Shop — Google Таблицы для продуктивности',
+    description: 'Готовые Google Таблицы для трекинга привычек, задач, финансов и планирования. Купи один раз — доступ навсегда.',
+    url: SITE_URL,
+    siteName: 'Planer.Shop',
+    locale: 'ru_RU',
+    type: 'website',
+    images: [
+      {
+        url: '/previews/habit-tracker-cover.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Planer.Shop — Google Таблицы для продуктивности',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Planer.Shop — Google Таблицы для продуктивности',
+    description: 'Готовые Google Таблицы для трекинга привычек, задач, финансов и планирования.',
+    images: ['/previews/habit-tracker-cover.jpg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
 }
 
 const PIXEL_ID = process.env.NEXT_PUBLIC_PIXEL_ID || ''
