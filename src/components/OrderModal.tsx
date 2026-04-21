@@ -118,15 +118,32 @@ export default function OrderModal({ product, onClose }: Props) {
       <div className="bg-white rounded-2xl w-full max-w-md p-8 shadow-2xl text-center">
         <div className="text-5xl mb-4">✅</div>
         <h2 className="text-xl font-bold mb-2">Счёт выставлен!</h2>
-        <p className="text-gray-600 text-sm mb-6">
+        <p className="text-gray-600 text-sm mb-4">
           Откройте приложение <strong>Kaspi</strong> на вашем телефоне и подтвердите оплату во вкладке «Платежи».
         </p>
+        <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-6 text-left">
+          <p className="text-amber-800 text-sm font-semibold mb-0.5">📧 Доступ придёт на почту</p>
+          <p className="text-amber-700 text-xs">
+            Сразу после оплаты мы автоматически отправим ссылку на <strong>{email}</strong>. Проверьте папку «Спам», если письмо не пришло в течение 5 минут.
+          </p>
+        </div>
         <button
           onClick={onClose}
-          className="w-full bg-black text-white font-semibold py-3 rounded-xl hover:bg-gray-800 transition-colors"
+          className="w-full bg-black text-white font-semibold py-3 rounded-xl hover:bg-gray-800 transition-colors mb-3"
         >
           Понятно
         </button>
+        <p className="text-xs text-gray-400">
+          Возникли проблемы?{' '}
+          <a
+            href="https://t.me/myplanner_support"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 hover:underline"
+          >
+            Напишите нам в Telegram
+          </a>
+        </p>
       </div>
     </div>
   )
@@ -167,7 +184,10 @@ export default function OrderModal({ product, onClose }: Props) {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1.5">Email</label>
+            <label className="block text-sm font-medium mb-1.5">
+              Email{' '}
+              <span className="text-amber-600 font-normal">— сюда придёт доступ</span>
+            </label>
             <input
               type="email"
               placeholder="ivan@example.com"
@@ -176,6 +196,9 @@ export default function OrderModal({ product, onClose }: Props) {
               required
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
             />
+            <p className="text-xs text-gray-400 mt-1.5">
+              Ссылка на таблицу придёт автоматически сразу после оплаты
+            </p>
           </div>
           <div>
             <label className="block text-sm font-medium mb-1.5">Номер телефона</label>
@@ -190,7 +213,20 @@ export default function OrderModal({ product, onClose }: Props) {
           </div>
 
           {error && (
-            <p className="text-red-500 text-sm bg-red-50 rounded-xl px-4 py-3">{error}</p>
+            <div className="bg-red-50 rounded-xl px-4 py-3">
+              <p className="text-red-500 text-sm">{error}</p>
+              <p className="text-xs text-red-400 mt-1">
+                Нужна помощь?{' '}
+                <a
+                  href="https://t.me/myplanner_support"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-red-600"
+                >
+                  Напишите в Telegram
+                </a>
+              </p>
+            </div>
           )}
 
           <button
