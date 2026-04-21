@@ -45,24 +45,31 @@ export async function POST(req: Request) {
 
     if (sbError) throw new Error(`Supabase error: ${sbError.message}`);
 
-    // 5. ЗАПРОС В APIPAY.KZ
-    // Тут мы формируем запрос к платежке
-    const apiPayResponse = await fetch('https://api.apipay.kz/v1/orders/create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.APIPAY_API_KEY}` // Не забудь добавить в .env.local
-      },
-      body: JSON.stringify({
-        amount: amount,
-        order_id: orderId,
-        description: 'Оплата заказа в MyPlaner',
-        callback_url: 'https://myplaner.asia/api/webhooks/apipay',
-        success_url: 'https://myplaner.asia/success'
-      })
-    });
+  // 5. ЗАПРОС В APIPAY.KZ
+  const apiPayResponse = await fetch('https://api.apipay.kz/v1/orders/create', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.APIPAY_API_KEY}`
+    },
+    body: JSON.stringify({
+      amount: amount,
+      order_id: orderId,
+      description: 'Оплата заказа в MyPlaner',
+      callback_url: 'https://myplaner.asia/api/webhooks/apipay',
+      success_url: 'https://myplaner.asia/success'
+    })
+  });
 
-    const apiPayData = await apiPayResponse.json();
+  // ПРОВЕРКА: Если ApiPay вернул ошибку, логгируем её текст (HTML)
+  if (!apiPayResponse.ok) {
+    const errorText = await apiPayResponse.text();
+    console.error('ApiPay Error Response:', errorText);
+    throw new Error(`ApiPay error: ${apiPayResponse.status} ${apiPayResponse.statusText}`);
+  }
+
+  const apiPayData = await apiPayResponse.json();
+  return NextResponse.json({ url: apiPayData.payment_url });
 
     // 6. Возвращаем ссылку на оплату на фронтенд
     return NextResponse.json({ url: apiPayData.payment_url });
