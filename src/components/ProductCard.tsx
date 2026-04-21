@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { Product } from '@/lib/products'
 import { pixelTrack, getFbCookies } from '@/lib/pixel'
 import { v4 as uuidv4 } from 'uuid'
@@ -74,6 +75,18 @@ const productIcons: Record<string, JSX.Element> = {
 }
 
 export default function ProductCard({ product, onBuy, onViewDetails }: Props) {
+  const [viewers, setViewers] = useState(() => Math.floor(Math.random() * 17) + 12)
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setViewers(v => {
+        const delta = Math.random() < 0.5 ? 1 : -1
+        return Math.min(28, Math.max(12, v + delta))
+      })
+    }, 8000)
+    return () => clearInterval(id)
+  }, [])
+
   const handleViewContent = async () => {
     const eventId = uuidv4()
     const { fbp, fbc } = getFbCookies()
@@ -116,6 +129,12 @@ export default function ProductCard({ product, onBuy, onViewDetails }: Props) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
           </svg>
         )}
+
+        {/* Viewers */}
+        <div className="absolute bottom-3 right-3 bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+          {viewers} смотрят
+        </div>
 
         {/* Бейджи */}
         <div className="absolute top-3 left-3 flex gap-1.5">

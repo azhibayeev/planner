@@ -5,14 +5,18 @@ import ProductCatalog from '@/components/ProductCatalog'
 import Reviews from '@/components/Reviews'
 import FAQ from '@/components/FAQ'
 import Footer from '@/components/Footer'
+import RecentPurchaseToast from '@/components/RecentPurchaseToast'
+import StickyBuyButton from '@/components/StickyBuyButton'
 
 export default function Home() {
   return (
-    <main>
+    <main className="relative">
       <Header />
       <Hero />
       <CountdownTimer />
       <ProductCatalog />
+      <RecentPurchaseToast />
+      <StickyBuyButton />
       <Reviews />
       <FAQ />
       <Footer />
