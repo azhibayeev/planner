@@ -6,10 +6,10 @@ export default function Hero() {
       <div className="max-w-6xl mx-auto">
 
         {/* Двухколоночный блок */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
 
-          {/* Левая колонка — текст */}
-          <div className="text-center lg:text-left">
+          {/* Левая колонка — текст (на мобилке идёт второй) */}
+          <div className="text-center lg:text-left order-2 lg:order-1">
             <p className="text-accent font-semibold text-xs uppercase tracking-widest mb-4 inline-flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
               Google Таблицы для продуктивности
@@ -58,8 +58,8 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Правая колонка — таблица */}
-          <div className="relative">
+          {/* Правая колонка — таблица (на мобилке идёт первой) */}
+          <div className="relative order-1 lg:order-2">
             {/* Glow эффект */}
             <div className="absolute inset-0 bg-violet-600/20 blur-3xl rounded-full scale-75 pointer-events-none" />
             <div className="relative">
