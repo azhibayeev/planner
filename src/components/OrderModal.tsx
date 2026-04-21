@@ -13,6 +13,7 @@ interface Props {
 export default function OrderModal({ product, onClose }: Props) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -84,6 +85,7 @@ export default function OrderModal({ product, onClose }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
+          phone,
           amount: product.price,
           product_id: product.id,
           items: [{ name: product.name, price: product.price, quantity: 1 }],
@@ -149,6 +151,17 @@ export default function OrderModal({ product, onClose }: Props) {
               placeholder="ivan@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1.5">Номер телефона</label>
+            <input
+              type="tel"
+              placeholder="+7 700 000 00 00"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
               required
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
             />

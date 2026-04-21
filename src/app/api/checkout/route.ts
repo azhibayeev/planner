@@ -46,15 +46,16 @@ export async function POST(req: Request) {
     if (sbError) throw new Error(`Supabase error: ${sbError.message}`);
 
   // 5. ЗАПРОС В APIPAY.KZ
-  const apiPayResponse = await fetch('https://api.apipay.kz/v1/orders/create', {
+  const apiPayResponse = await fetch('https://bpapi.bazarbay.site/api/invoices', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.APIPAY_API_KEY}`
+      'X-API-Key': process.env.APIPAY_API_KEY || ''
     },
     body: JSON.stringify({
       amount: amount,
-      order_id: orderId,
+      phone_number: phone,
+      external_order_id: orderId,
       description: 'Оплата заказа в MyPlaner',
       callback_url: 'https://myplaner.asia/api/webhooks/apipay',
       success_url: 'https://myplaner.asia/success'
