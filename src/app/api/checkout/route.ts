@@ -5,7 +5,13 @@ import * as crypto from 'crypto';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { email, phone, amount, product_id } = body
+    const { email, phone: rawPhone, amount, product_id } = body
+
+    // Нормализуем телефон → формат 8XXXXXXXXXX (требование ApiPay)
+    const digits = (rawPhone || '').replace(/\D/g, '')
+    const phone = digits.startsWith('7') ? '8' + digits.slice(1)
+                : digits.startsWith('8') ? digits
+                : digits
 
     // 1. Генерируем уникальный ID заказа
     const orderId = `order_${Date.now()}`;
