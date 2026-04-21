@@ -155,16 +155,16 @@ export default function ProductCard({ product, onBuy, onViewDetails }: Props) {
         </div>
 
         {/* Кнопки */}
-        <div className="flex gap-2 mt-auto">
+        <div className="flex flex-col gap-2 mt-auto">
           <button
             onClick={() => onBuy(product)}
-            className="flex-1 bg-black text-white text-sm font-semibold py-2.5 rounded-xl hover:bg-gray-800 transition-colors"
+            className="w-full bg-black text-white text-sm font-semibold py-3 rounded-xl hover:bg-gray-800 transition-colors"
           >
             Купить
           </button>
           <button
             onClick={() => { handleViewContent(); onViewDetails(product) }}
-            className="flex-1 border border-gray-200 text-sm font-medium py-2.5 rounded-xl hover:bg-gray-50 transition-colors"
+            className="w-full border border-gray-200 text-sm font-medium py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-gray-600"
           >
             Подробнее
           </button>

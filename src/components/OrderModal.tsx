@@ -18,6 +18,11 @@ export default function OrderModal({ product, onClose }: Props) {
   const [error, setError] = useState('')
   const [sent, setSent] = useState(false)
 
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = '' }
+  }, [])
+
   // InitiateCheckout при открытии
   useEffect(() => {
     if (!product) return
@@ -112,10 +117,10 @@ export default function OrderModal({ product, onClose }: Props) {
 
   if (sent) return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-white rounded-2xl w-full max-w-md p-8 shadow-2xl text-center">
+      <div className="bg-white rounded-t-3xl sm:rounded-2xl w-full sm:max-w-md p-8 shadow-2xl text-center">
         <div className="text-5xl mb-4">✅</div>
         <h2 className="text-xl font-bold mb-2">Счёт выставлен!</h2>
         <p className="text-gray-600 text-sm mb-4">
@@ -150,10 +155,10 @@ export default function OrderModal({ product, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
+      <div className="bg-white rounded-t-3xl sm:rounded-2xl w-full sm:max-w-md p-6 shadow-2xl relative max-h-[95vh] overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-black transition-colors"
@@ -180,6 +185,7 @@ export default function OrderModal({ product, onClose }: Props) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
+              autoComplete="name"
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
             />
           </div>
@@ -194,6 +200,8 @@ export default function OrderModal({ product, onClose }: Props) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              autoComplete="email"
+              inputMode="email"
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
             />
             <p className="text-xs text-gray-400 mt-1.5">
@@ -208,6 +216,8 @@ export default function OrderModal({ product, onClose }: Props) {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               required
+              autoComplete="tel"
+              inputMode="tel"
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
             />
           </div>
