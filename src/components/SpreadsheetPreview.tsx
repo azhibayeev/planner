@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 
 const DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 
-const HABITS = [
+const INITIAL_HABITS = [
   { icon: '🏃', name: 'Спорт',     days: [1,1,1,1,1,0,1], color: 'bg-violet-500', light: 'bg-violet-50 text-violet-700' },
   { icon: '💧', name: 'Вода 2л',   days: [1,1,1,1,1,1,1], color: 'bg-blue-500',   light: 'bg-blue-50 text-blue-700'     },
   { icon: '📚', name: 'Чтение',    days: [1,0,1,1,0,1,1], color: 'bg-emerald-500',light: 'bg-emerald-50 text-emerald-700'},
@@ -15,19 +15,26 @@ const HABITS = [
 const pct = (days: number[]) =>
   Math.round((days.filter(Boolean).length / days.length) * 100)
 
-const totalDone = HABITS.reduce((s, h) => s + h.days.filter(Boolean).length, 0)
-const totalCells = HABITS.length * HABITS[0].days.length
-const overallPct = Math.round((totalDone / totalCells) * 100)
-
 export default function SpreadsheetPreview() {
+  const [habits, setHabits] = useState(INITIAL_HABITS)
   const [revealed, setRevealed] = useState<boolean[][]>(
-    () => HABITS.map(() => DAYS.map(() => false))
+    () => INITIAL_HABITS.map(() => DAYS.map(() => false))
   )
   const [showBars, setShowBars] = useState(false)
 
+  const totalDone = habits.reduce((s, h) => s + h.days.filter(Boolean).length, 0)
+  const totalCells = habits.length * habits[0].days.length
+  const overallPct = Math.round((totalDone / totalCells) * 100)
+
+  const toggle = (ri: number, ci: number) => {
+    setHabits(prev => prev.map((h, i) =>
+      i === ri ? { ...h, days: h.days.map((d, j) => j === ci ? (d ? 0 : 1) : d) } : h
+    ))
+  }
+
   useEffect(() => {
     const cells: [number, number][] = []
-    HABITS.forEach((_, ri) => DAYS.forEach((_, ci) => cells.push([ri, ci])))
+    INITIAL_HABITS.forEach((_, ri) => DAYS.forEach((_, ci) => cells.push([ri, ci])))
 
     cells.forEach(([ri, ci], i) =>
       setTimeout(() => {
@@ -108,7 +115,7 @@ export default function SpreadsheetPreview() {
               </tr>
             </thead>
             <tbody>
-              {HABITS.map((habit, ri) => {
+              {habits.map((habit, ri) => {
                 const p = pct(habit.days)
                 return (
                   <tr key={ri} className={ri % 2 === 0 ? 'bg-white' : 'bg-[#fafbff]'}>
@@ -120,13 +127,16 @@ export default function SpreadsheetPreview() {
                     </td>
                     {habit.days.map((done, ci) => (
                       <td key={ci} className="border-r border-b border-gray-100 text-center p-1">
-                        <div className={`w-5 h-5 mx-auto rounded-md flex items-center justify-center transition-all duration-300 ${
-                          revealed[ri]?.[ci]
-                            ? done
-                              ? `${habit.color} text-white scale-100 opacity-100`
-                              : 'bg-gray-100 text-gray-300 scale-100 opacity-100'
-                            : 'scale-50 opacity-0'
-                        }`}>
+                        <div
+                          onClick={() => toggle(ri, ci)}
+                          className={`w-5 h-5 mx-auto rounded-md flex items-center justify-center transition-all duration-200 cursor-pointer select-none ${
+                            revealed[ri]?.[ci]
+                              ? done
+                                ? `${habit.color} text-white scale-100 opacity-100 hover:opacity-80 active:scale-90`
+                                : 'bg-gray-100 text-gray-300 scale-100 opacity-100 hover:bg-gray-200 active:scale-90'
+                              : 'scale-50 opacity-0'
+                          }`}
+                        >
                           {done
                             ? <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
