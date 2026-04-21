@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       // 3. Отправляем Purchase в Meta CAPI
       await sendCapiEvent({
         eventName: 'Purchase',
-        eventId: order_id,
+        eventId: orderId,
         sourceUrl: 'https://myplaner.asia',
         userData: {
           email: order.email,
