@@ -239,6 +239,9 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
               inputMode="tel"
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
             />
+            <p className="text-xs text-gray-400 mt-1.5">
+              На этот номер выставим счёт в <span className="font-semibold text-gray-600">Kaspi</span> — подтвердите оплату в приложении
+            </p>
           </div>
 
           {error && (
