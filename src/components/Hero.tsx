@@ -16,14 +16,14 @@ export default function Hero() {
             </p>
 
             <h1 className="text-4xl md:text-5xl font-extrabold leading-tight mb-5">
-              Контролируй жизнь
+              Хватит терять время —
               <br />
-              <span className="text-accent">с умными таблицами</span>
+              <span className="text-accent">возьми жизнь под контроль</span>
             </h1>
 
             <p className="text-gray-400 text-base md:text-lg mb-8 max-w-md mx-auto lg:mx-0 leading-relaxed">
-              Готовые Google Таблицы — привычки, задачи, финансы и планирование.
-              Просто скопируй и начни пользоваться сегодня.
+              Готовые Google Таблицы для привычек, задач, финансов и планирования.
+              Уже используют <span className="text-white font-semibold">500+ казахстанцев</span> — просто скопируй и начни.
             </p>
 
             {/* CTA */}

@@ -2,6 +2,7 @@ import Header from '@/components/Header'
 import Hero from '@/components/Hero'
 import CountdownTimer from '@/components/CountdownTimer'
 import ProductCatalog from '@/components/ProductCatalog'
+import ForWhom from '@/components/ForWhom'
 import Reviews from '@/components/Reviews'
 import FAQ from '@/components/FAQ'
 import Footer from '@/components/Footer'
@@ -15,11 +16,12 @@ export default function Home() {
       <Hero />
       <CountdownTimer />
       <ProductCatalog />
-      <RecentPurchaseToast />
-      <StickyBuyButton />
+      <ForWhom />
       <Reviews />
       <FAQ />
       <Footer />
+      <RecentPurchaseToast />
+      <StickyBuyButton />
     </main>
   )
 }

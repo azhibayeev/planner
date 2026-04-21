@@ -2,48 +2,31 @@
 
 import { useEffect, useState } from 'react'
 
-function getTimeUntilMidnight() {
-  const now = new Date()
-  const midnight = new Date()
-  midnight.setHours(24, 0, 0, 0)
-  const diff = Math.max(0, midnight.getTime() - now.getTime())
-  const h = Math.floor(diff / 1000 / 60 / 60)
-  const m = Math.floor((diff / 1000 / 60) % 60)
-  const s = Math.floor((diff / 1000) % 60)
-  return { h, m, s }
-}
-
-function pad(n: number) {
-  return String(n).padStart(2, '0')
-}
+// Seats left — fixed per session so it doesn't flicker on re-render
+const INITIAL_SEATS = 17
 
 export default function CountdownTimer() {
-  const [time, setTime] = useState(getTimeUntilMidnight)
+  const [seats, setSeats] = useState(INITIAL_SEATS)
 
   useEffect(() => {
-    const id = setInterval(() => setTime(getTimeUntilMidnight()), 1000)
+    // Slowly decrease seats count to simulate demand
+    const id = setInterval(() => {
+      setSeats(s => Math.max(5, s - 1))
+    }, 45000) // every 45 seconds
     return () => clearInterval(id)
   }, [])
 
   return (
-    <div className="bg-red-600 text-white py-3 px-4">
-      <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-2 text-center">
-        <span className="text-sm font-medium">🔥 Скидки до 60% — только сегодня!</span>
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs text-red-200">Осталось:</span>
-          {[
-            { val: time.h, label: 'ч' },
-            { val: time.m, label: 'мин' },
-            { val: time.s, label: 'сек' },
-          ].map(({ val, label }, i) => (
-            <span key={i} className="flex items-center gap-0.5">
-              <span className="bg-white/20 text-white font-bold text-sm px-2 py-0.5 rounded-md min-w-[32px] text-center tabular-nums">
-                {pad(val)}
-              </span>
-              <span className="text-red-200 text-xs">{label}</span>
-              {i < 2 && <span className="text-red-300 font-bold text-sm mx-0.5">:</span>}
-            </span>
-          ))}
+    <div className="bg-gray-900 border-y border-gray-800 text-white py-3 px-4">
+      <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-3 text-center">
+        <span className="text-sm font-medium">
+          Скидки до 60% активны прямо сейчас
+        </span>
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse flex-shrink-0" />
+          <span className="text-amber-400 font-bold text-sm">
+            Осталось {seats} мест по акционной цене
+          </span>
         </div>
       </div>
     </div>
