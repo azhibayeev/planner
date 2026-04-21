@@ -71,9 +71,10 @@ const productIcons: Record<string, JSX.Element> = {
 }
 
 export default function ProductCard({ product, onBuy, onViewDetails }: Props) {
-  const [viewers, setViewers] = useState(() => Math.floor(Math.random() * 17) + 12)
+  const [viewers, setViewers] = useState(18)
 
   useEffect(() => {
+    setViewers(Math.floor(Math.random() * 17) + 12)
     const id = setInterval(() => {
       setViewers(v => Math.min(28, Math.max(12, v + (Math.random() < 0.5 ? 1 : -1))))
     }, 8000)
