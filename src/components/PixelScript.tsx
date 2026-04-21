@@ -18,7 +18,10 @@ export default function PixelScript({ pixelId }: Props) {
           s.parentNode.insertBefore(t,s)}(window, document,'script',
           'https://connect.facebook.net/en_US/fbevents.js');
           fbq('init', '${pixelId}');
-          fbq('track', 'PageView');
+          if (!window.__fbPageViewFired) {
+            window.__fbPageViewFired = true;
+            fbq('track', 'PageView');
+          }
         `}
       </Script>
       <noscript>
