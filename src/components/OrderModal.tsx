@@ -216,14 +216,15 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
             <button
               type="button"
               onClick={() => setProduct(bundleProduct)}
-              className="w-full bg-amber-50 border border-amber-300 rounded-xl px-4 py-3 text-left hover:bg-amber-100 transition-colors"
+              className="w-full bg-amber-50 border border-amber-300 rounded-xl px-3.5 py-2.5 flex items-center justify-between hover:bg-amber-100 transition-colors"
             >
-              <p className="text-xs font-bold text-amber-700 uppercase tracking-wide mb-0.5">🔥 Выгоднее всего</p>
-              <p className="text-sm font-semibold text-gray-900">
-                Все 5 таблиц за 6 000 ₸{' '}
+              <span className="text-sm font-semibold text-gray-900">
+                🔥 Все 5 таблиц — 6 000 ₸{' '}
                 <span className="text-gray-400 line-through font-normal text-xs">12 500 ₸</span>
-              </p>
-              <p className="text-xs text-amber-700 mt-0.5">Экономия 6 500 ₸ — нажми чтобы выбрать</p>
+              </span>
+              <svg className="w-4 h-4 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </button>
           )}
 
@@ -231,7 +232,7 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
           <form onSubmit={handleCheckout} className="flex flex-col gap-3">
             <div>
               <label className="block text-sm font-medium mb-1.5">
-                Email <span className="text-amber-600 font-normal">— сюда придёт доступ</span>
+                Email <span className="text-amber-600 font-normal text-xs">— сюда придёт доступ</span>
               </label>
               <input
                 type="email"
@@ -243,10 +244,11 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
                 inputMode="email"
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
               />
-              <p className="text-xs text-gray-400 mt-1">Ссылка на таблицу придёт автоматически после оплаты</p>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5">Номер телефона</label>
+              <label className="block text-sm font-medium mb-1.5">
+                Телефон <span className="text-gray-400 font-normal text-xs">— счёт придёт в Kaspi</span>
+              </label>
               <input
                 type="tel"
                 placeholder="+7 700 000 00 00"
@@ -257,9 +259,6 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
                 inputMode="tel"
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
               />
-              <p className="text-xs text-gray-400 mt-1">
-                На этот номер выставим счёт в <span className="font-semibold text-gray-600">Kaspi</span>
-              </p>
             </div>
 
             {error && (
@@ -307,21 +306,16 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
             </button>
 
             {/* Иконки оплаты */}
-            <div className="flex items-center justify-center gap-2 flex-wrap">
+            <div className="flex items-center justify-center gap-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="https://fund2.kz/wp-content/uploads/2022/02/content_%D0%BA%D0%B0%D1%81%D0%BF%D0%B8.png" alt="Kaspi" className="h-5 object-contain" />
-              <div className="flex items-center gap-1.5">
-                <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-                <span className="text-xs text-gray-400">Безопасная оплата</span>
-              </div>
+              <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span className="text-xs text-gray-400">
+                Безопасная оплата · <a href="/privacy" className="hover:text-black">политика</a>
+              </span>
             </div>
-
-            <p className="text-center text-xs text-gray-400 -mt-1">
-              Нажимая «Перейти к оплате», вы соглашаетесь с{' '}
-              <a href="/privacy" className="underline hover:text-black">политикой конфиденциальности</a>
-            </p>
           </form>
         </div>
       </div>
