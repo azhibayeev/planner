@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { Product } from '@/lib/products'
 import { pixelTrack, getFbCookies } from '@/lib/pixel'
 import { v4 as uuidv4 } from 'uuid'
@@ -115,14 +116,25 @@ export default function ProductCard({ product, onBuy, onViewDetails }: Props) {
       {/* Превью */}
       <div className={`bg-gradient-to-br ${product.color} h-44 flex items-center justify-center relative overflow-hidden`}>
 
-        {/* Иконка */}
-        <div className="transition-transform duration-300 group-hover:scale-110">
-          {productIcons[product.id] ?? (
-            <svg className="w-14 h-14 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
-            </svg>
-          )}
-        </div>
+        {product.coverUrl ? (
+          /* Обложка */
+          <Image
+            src={product.coverUrl}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            sizes="(max-width: 640px) 100vw, 320px"
+          />
+        ) : (
+          /* Иконка-заглушка */
+          <div className="transition-transform duration-300 group-hover:scale-110">
+            {productIcons[product.id] ?? (
+              <svg className="w-14 h-14 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+              </svg>
+            )}
+          </div>
+        )}
 
         {/* Overlay при hover */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 flex items-center justify-center">
@@ -141,23 +153,41 @@ export default function ProductCard({ product, onBuy, onViewDetails }: Props) {
           {viewers} смотрят
         </div>
 
-        {/* Бейджи */}
-        <div className="absolute top-3 left-3 flex gap-1.5">
-          {product.tag && (
-            <span className="bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1 rounded-full border border-white/30">
-              {product.tag}
-            </span>
-          )}
-          {discountPercent && (
-            <span className="bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-              −{discountPercent}%
-            </span>
-          )}
-        </div>
+        {/* Бейджи — только для карточек без обложки */}
+        {!product.coverUrl && (
+          <div className="absolute top-3 left-3 flex gap-1.5">
+            {product.tag && (
+              <span className="bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1 rounded-full border border-white/30">
+                {product.tag}
+              </span>
+            )}
+            {discountPercent && (
+              <span className="bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                −{discountPercent}%
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Контент */}
       <div className="p-4 flex flex-col flex-1 gap-2">
+
+        {/* Бейджи под обложкой */}
+        {product.coverUrl && (product.tag || discountPercent) && (
+          <div className="flex gap-1.5">
+            {product.tag && (
+              <span className="bg-gray-100 text-gray-600 text-xs font-semibold px-2.5 py-1 rounded-full">
+                {product.tag}
+              </span>
+            )}
+            {discountPercent && (
+              <span className="bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                −{discountPercent}%
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Название + рейтинг */}
         <h3 className="font-bold text-base leading-snug">{product.name}</h3>

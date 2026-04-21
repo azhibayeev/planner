@@ -5,6 +5,7 @@ export interface Product {
   price: number
   oldPrice?: number
   imageUrl: string
+  coverUrl?: string
   tag?: string
   rating: number
   reviewCount: number
@@ -45,6 +46,7 @@ export const products: Product[] = [
     rating: 4.9,
     reviewCount: 234,
     color: 'from-violet-500 to-violet-700',
+    coverUrl: '/previews/tracker-privichek-cover.png',
     screenshots: ['/previews/tracker-privichek-1.png', '/previews/tracker-privichek-2.png'],
     previewSheetId: '1_CGkd5MjE654wLTzYjXfjVaoDsVGvSw3HzxqlvpszXI',
     previewGid: '904802037',
@@ -60,6 +62,7 @@ export const products: Product[] = [
     rating: 4.8,
     reviewCount: 187,
     color: 'from-blue-500 to-blue-700',
+    coverUrl: '/previews/tracker-zadach-cover.png',
     screenshots: ['/previews/tracker-zadach-1.jpg', '/previews/tracker-zadach-2.jpg'],
     previewSheetId: '1T3oXdlk-A5Ku2Gsm5Ix80fnUMla8UZgLy9tkfLpJMTY',
     previewGid: '1498786081',
@@ -75,6 +78,7 @@ export const products: Product[] = [
     rating: 4.8,
     reviewCount: 143,
     color: 'from-emerald-500 to-emerald-700',
+    coverUrl: '/previews/finance-plan-cover.png',
     screenshots: ['/previews/finance-plan-1.png', '/previews/finance-plan-2.png'],
     previewSheetId: '1dMrQHluKWOXG1LShT2prdXBzYlBNcpybSBH2zJuisfY',
     previewGid: '1409432328',
@@ -90,6 +94,7 @@ export const products: Product[] = [
     rating: 4.7,
     reviewCount: 112,
     color: 'from-indigo-500 to-indigo-700',
+    coverUrl: '/previews/week-cover.png',
     screenshots: ['/previews/week-1.png', '/previews/week-2.png'],
     previewSheetId: '1km2Qi_578NjdkdTRcKrNKBiJEi0BLvpWKVvNV0kyhow',
     previewGid: '1409432328',
