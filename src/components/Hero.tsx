@@ -10,11 +10,6 @@ export default function Hero() {
 
           {/* Левая колонка — текст (на мобилке идёт второй) */}
           <div className="text-center lg:text-left order-2 lg:order-1">
-            <p className="text-accent font-semibold text-xs uppercase tracking-widest mb-4 inline-flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-              Google Таблицы для продуктивности
-            </p>
-
             <h1 className="text-4xl md:text-5xl font-extrabold leading-tight mb-5">
               Хватит терять время —
               <br />
@@ -33,12 +28,6 @@ export default function Hero() {
                 className="bg-white text-black font-semibold px-8 py-3.5 rounded-full hover:bg-gray-100 transition-colors text-sm"
               >
                 Смотреть каталог
-              </a>
-              <a
-                href="#catalog"
-                className="bg-accent text-white font-semibold px-8 py-3.5 rounded-full hover:bg-red-500 transition-colors text-sm"
-              >
-                Купить сейчас
               </a>
             </div>
 
@@ -69,11 +58,7 @@ export default function Hero() {
         </div>
 
         {/* Статистика — полная ширина снизу */}
-        <div className="mt-14 grid grid-cols-3 gap-6 max-w-sm mx-auto lg:max-w-none lg:grid-cols-3 text-center border-t border-gray-800 pt-8">
-          <div>
-            <p className="text-2xl font-bold">500+</p>
-            <p className="text-gray-500 text-xs mt-1">покупателей</p>
-          </div>
+        <div className="mt-14 grid grid-cols-2 gap-6 max-w-xs mx-auto lg:max-w-none lg:grid-cols-2 text-center border-t border-gray-800 pt-8">
           <div>
             <p className="text-2xl font-bold">5</p>
             <p className="text-gray-500 text-xs mt-1">таблиц в каталоге</p>

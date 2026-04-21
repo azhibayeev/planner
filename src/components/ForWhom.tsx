@@ -60,10 +60,7 @@ export default function ForWhom() {
     <section className="py-16 px-4 bg-gray-50">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
-          <h2 className="text-3xl font-extrabold mb-3">Для кого эти таблицы?</h2>
-          <p className="text-gray-500 max-w-xl mx-auto">
-            Наши шаблоны подходят всем, кто хочет навести порядок в делах, привычках и финансах — без лишней сложности.
-          </p>
+          <h2 className="text-3xl font-extrabold">Для кого эти таблицы?</h2>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
