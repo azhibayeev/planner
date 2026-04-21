@@ -143,7 +143,7 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
         <p className="text-xs text-gray-400">
           Возникли проблемы?{' '}
           <a
-            href="https://t.me/myplanner_support"
+            href="https://t.me/myplaner_support"
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-500 hover:underline"
@@ -237,7 +237,7 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
               <p className="text-xs text-red-400 mt-1">
                 Нужна помощь?{' '}
                 <a
-                  href="https://t.me/myplanner_support"
+                  href="https://t.me/myplaner_support"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline hover:text-red-600"

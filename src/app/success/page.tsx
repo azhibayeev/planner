@@ -50,7 +50,7 @@ export default function SuccessPage() {
         </a>
 
         <a
-          href="https://t.me/myplanner_support"
+          href="https://t.me/myplaner_support"
           target="_blank"
           rel="noopener noreferrer"
           className="block w-full border border-gray-200 text-gray-700 font-medium py-3 rounded-xl hover:bg-gray-50 transition-colors text-sm"
