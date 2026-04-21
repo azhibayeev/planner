@@ -1,6 +1,7 @@
 import Header from '@/components/Header'
 import Hero from '@/components/Hero'
 import CountdownTimer from '@/components/CountdownTimer'
+import HowItWorks from '@/components/HowItWorks'
 import ProductCatalog from '@/components/ProductCatalog'
 import ForWhom from '@/components/ForWhom'
 import Reviews from '@/components/Reviews'
@@ -15,6 +16,7 @@ export default function Home() {
       <Header />
       <Hero />
       <CountdownTimer />
+      <HowItWorks />
       <ProductCatalog />
       <ForWhom />
       <Reviews />

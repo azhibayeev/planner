@@ -14,7 +14,6 @@ interface Props {
 
 export default function OrderModal({ product: initialProduct, onClose }: Props) {
   const [product, setProduct] = useState<Product | null>(initialProduct)
-  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [loading, setLoading] = useState(false)
@@ -79,7 +78,7 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
         eventName: 'Lead',
         eventId,
         sourceUrl: window.location.href,
-        userData: { email, name, fbp, fbc },
+        userData: { email, fbp, fbc },
         customData: {
           content_ids: [product.id],
           value: product.price,
@@ -196,18 +195,6 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
         </div>
 
         <form onSubmit={handleCheckout} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1.5">Ваше имя</label>
-            <input
-              type="text"
-              placeholder="Иван Иванов"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              autoComplete="name"
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-            />
-          </div>
           <div>
             <label className="block text-sm font-medium mb-1.5">
               Email{' '}
