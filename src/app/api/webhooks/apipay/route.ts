@@ -8,7 +8,8 @@ export async function POST(req: Request) {
     const body = await req.json()
     console.log('Incoming Webhook:', JSON.stringify(body))
 
-    const { order_id, status } = body
+    const { order_id, external_order_id, status } = body
+    const orderId = external_order_id || order_id
 
     if (status === 'success' || status === 'paid') {
 
@@ -16,18 +17,18 @@ export async function POST(req: Request) {
       const { data: order, error: fetchError } = await supabaseAdmin
         .from('orders')
         .select('*')
-        .eq('order_id', order_id)
+        .eq('order_id', orderId)
         .single()
 
       if (fetchError || !order) {
-        throw new Error(`Order not found: ${order_id}`)
+        throw new Error(`Order not found: ${orderId}`)
       }
 
       // 2. Обновляем статус
       await supabaseAdmin
         .from('orders')
         .update({ status: 'paid' })
-        .eq('order_id', order_id)
+        .eq('order_id', orderId)
 
       // 3. Отправляем Purchase в Meta CAPI
       await sendCapiEvent({

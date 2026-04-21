@@ -4,23 +4,23 @@ import { Resend } from 'resend'
 const PRODUCT_LINKS: Record<string, { name: string; copyUrl: string }> = {
   'habit-tracker': {
     name: 'Трекер привычек',
-    copyUrl: 'https://docs.google.com/spreadsheets/d/1_CGkd5MjE654wLTzYjXfjVaoDsVGvSw3HzxqlvpszXI/copy',
+    copyUrl: 'https://docs.google.com/spreadsheets/d/1ppzcUwoDr_aeGani6yuL3a-PXyUwEmnxD5TsgrqWIAU/copy',
   },
   'task-tracker': {
     name: 'Трекер задач',
-    copyUrl: 'https://docs.google.com/spreadsheets/d/1T3oXdlk-A5Ku2Gsm5Ix80fnUMla8UZgLy9tkfLpJMTY/copy',
+    copyUrl: 'https://docs.google.com/spreadsheets/d/1_425hUdYRBuI6FK6GuWRbsQbgKsw4Tm10gGlVjHZqrA/copy',
   },
   'budget': {
     name: 'Финансовый планер',
-    copyUrl: 'https://docs.google.com/spreadsheets/d/1dMrQHluKWOXG1LShT2prdXBzYlBNcpybSBH2zJuisfY/copy',
+    copyUrl: 'https://docs.google.com/spreadsheets/d/13T32-Vfy_0am27yKdnUSM2xgWnvnzwisiXOOEiIpGuo/copy',
   },
   'planer-week': {
     name: 'Планер на неделю',
-    copyUrl: 'https://docs.google.com/spreadsheets/d/1km2Qi_578NjdkdTRcKrNKBiJEi0BLvpWKVvNV0kyhow/copy',
+    copyUrl: 'https://docs.google.com/spreadsheets/d/10MdVOdzoVnQolknhgsv5HOEUuo7QUO9Q/copy',
   },
   'pink-habit-tracker': {
     name: 'Розовый трекер привычек',
-    copyUrl: 'https://docs.google.com/spreadsheets/d/16V-BmFDy04NmwkZ1AR0-IRnFzEiuO-77Us3zyp_gz3Q/copy',
+    copyUrl: 'https://docs.google.com/spreadsheets/d/11HFPZDJ9O6zh5YWEmy_3WCshBmEQx9RKUgO60sEt0wU/copy',
   },
   'bundle-all': {
     name: 'Все вместе',
