@@ -1,6 +1,9 @@
+import PurchaseTracker from '@/components/PurchaseTracker'
+
 export default function SuccessPage() {
   return (
     <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
+      <PurchaseTracker />
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 w-full max-w-md p-8 text-center">
 
         {/* Иконка */}

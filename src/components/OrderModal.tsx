@@ -61,10 +61,34 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
     setLoading(true)
     setError('')
 
-    // Pixel + CAPI Lead
-    const eventId = uuidv4()
     const { fbp, fbc } = getFbCookies()
 
+    // Pixel + CAPI AddPaymentInfo
+    const addPaymentEventId = uuidv4()
+    pixelTrack('AddPaymentInfo', {
+      content_ids: [product.id],
+      value: product.price,
+      currency: 'KZT',
+    }, addPaymentEventId)
+
+    fetch('/api/capi', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        eventName: 'AddPaymentInfo',
+        eventId: addPaymentEventId,
+        sourceUrl: window.location.href,
+        userData: { email, fbp, fbc },
+        customData: {
+          content_ids: [product.id],
+          value: product.price,
+          currency: 'KZT',
+        },
+      }),
+    })
+
+    // Pixel + CAPI Lead
+    const eventId = uuidv4()
     pixelTrack('Lead', {
       content_ids: [product.id],
       value: product.price,
@@ -86,6 +110,13 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
         },
       }),
     })
+
+    // Сохраняем данные заказа для Purchase на странице успеха
+    localStorage.setItem('last_order', JSON.stringify({
+      value: product.price,
+      currency: 'KZT',
+      content_ids: [product.id],
+    }))
 
     try {
       const response = await fetch('/api/checkout', {
