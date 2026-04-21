@@ -267,8 +267,12 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
               Безопасная оплата
             </div>
             <span className="text-gray-200">·</span>
-            <span className="text-xs font-bold text-[#ef3e42]">Kaspi</span>
-            <span className="text-xs font-semibold text-gray-500">Pay</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://fund2.kz/wp-content/uploads/2022/02/content_%D0%BA%D0%B0%D1%81%D0%BF%D0%B8.png"
+              alt="Kaspi Pay"
+              className="h-6 object-contain"
+            />
           </div>
 
           <button
