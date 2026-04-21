@@ -8,8 +8,10 @@ export async function POST(req: Request) {
     const body = await req.json()
     console.log('Incoming Webhook:', JSON.stringify(body))
 
-    const { order_id, external_order_id, status } = body
-    const orderId = external_order_id || order_id
+    // ApiPay шлёт данные внутри body.invoice, тест — на корневом уровне
+    const invoice = body.invoice || body
+    const orderId = invoice.external_order_id || invoice.order_id || body.external_order_id || body.order_id
+    const status = invoice.status || body.status
 
     if (status === 'success' || status === 'paid') {
 
@@ -53,7 +55,7 @@ export async function POST(req: Request) {
         await sendOrderEmail(order.email_plain, order.product_id)
         console.log(`Email sent to ${order.email_plain} for product ${order.product_id}`)
       } else {
-        console.warn(`Missing email_plain or product_id for order ${order_id}`)
+        console.warn(`Missing email_plain or product_id for order ${orderId}`)
       }
 
       return NextResponse.json({ status: 'ok' })
