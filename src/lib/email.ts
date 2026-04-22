@@ -202,6 +202,12 @@ export async function sendPaymentErrorEmail(to: string, productName: string): Pr
                 <a href="https://myplaner.asia" style="display:inline-block;background:#111;color:#fff;font-weight:600;font-size:15px;padding:14px 28px;border-radius:10px;text-decoration:none;">
                   Попробовать снова →
                 </a>
+                <div style="margin-top:16px;">
+                  <a href="http://wa.me/77079297008" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;font-weight:600;font-size:15px;padding:14px 28px;border-radius:10px;text-decoration:none;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/500px-WhatsApp.svg.png" alt="WhatsApp" width="18" height="18" style="vertical-align:middle;"/>
+                    Оплатить через WhatsApp
+                  </a>
+                </div>
                 <p style="margin:20px 0 0;color:#9ca3af;font-size:13px;">
                   Если проблема повторяется — напишите нам, разберёмся вместе.
                 </p>

@@ -262,17 +262,27 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
                 inputMode="tel"
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
               />
+              <p className="text-xs text-gray-400 mt-1">
+                Нет Kaspi?{' '}
+                <a href="http://wa.me/77079297008" target="_blank" rel="noopener noreferrer" className="text-emerald-600 font-medium hover:underline">
+                  Напишите нам в WhatsApp
+                </a>
+              </p>
             </div>
 
             {error && (
               <div className="bg-red-50 rounded-xl px-4 py-3">
                 <p className="text-red-500 text-sm">{error}</p>
-                <p className="text-xs text-red-400 mt-1">
-                  Нужна помощь?{' '}
-                  <a href="https://t.me/myplaner_support" target="_blank" rel="noopener noreferrer" className="underline hover:text-red-600">
-                    Напишите в Telegram
-                  </a>
-                </p>
+                <a
+                  href="http://wa.me/77079297008"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 flex items-center gap-2 bg-[#25D366] text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-[#20bc5a] transition-colors w-full justify-center"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/500px-WhatsApp.svg.png" alt="WhatsApp" className="w-4 h-4" />
+                  Оплатить через WhatsApp
+                </a>
               </div>
             )}
 
