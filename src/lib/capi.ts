@@ -82,18 +82,20 @@ export async function sendCapiEvent(event: CapiEvent): Promise<void> {
 
   const url = `https://graph.facebook.com/v21.0/${datasetId}/events?access_token=${accessToken}`
 
-  // Логируем событие в Supabase
-  supabaseAdmin.from('capi_events').insert({
-    event_name: event.eventName,
-    event_id: event.eventId,
-    order_id: (event.customData?.order_id as string) ?? null,
-    email: event.userData.email ?? null,
-    value: (event.customData?.value as number) ?? null,
-    currency: (event.customData?.currency as string) ?? null,
-    source_url: event.sourceUrl,
-  }).then(({ error }) => {
-    if (error) console.error('[CAPI] Supabase log error:', error.message)
-  })
+  // Логируем событие в Supabase (пропускаем localhost)
+  if (!event.sourceUrl.includes('localhost')) {
+    supabaseAdmin.from('capi_events').insert({
+      event_name: event.eventName,
+      event_id: event.eventId,
+      order_id: (event.customData?.order_id as string) ?? null,
+      email: event.userData.email ?? null,
+      value: (event.customData?.value as number) ?? null,
+      currency: (event.customData?.currency as string) ?? null,
+      source_url: event.sourceUrl,
+    }).then(({ error }) => {
+      if (error) console.error('[CAPI] Supabase log error:', error.message)
+    })
+  }
 
   try {
     const res = await fetch(url, {

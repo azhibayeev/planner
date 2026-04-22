@@ -125,6 +125,102 @@ function buildEmailHtml(productId: string): string {
   `
 }
 
+export async function sendPendingReminderEmail(to: string, productName: string): Promise<void> {
+  const resend = new Resend(process.env.RESEND_API_KEY)
+  await resend.emails.send({
+    from: 'MyPlaner <noreply@myplaner.asia>',
+    to,
+    subject: 'Подтвердите оплату в Kaspi',
+    html: `
+      <!DOCTYPE html>
+      <html lang="ru">
+      <head><meta charset="UTF-8"/></head>
+      <body style="margin:0;padding:0;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;padding:40px 16px;">
+          <tr><td align="center">
+            <table width="560" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08);">
+              <tr><td style="background:#111;padding:28px 32px;">
+                <span style="color:#fff;font-size:20px;font-weight:700;">MyPlaner</span>
+                <span style="color:#f59e0b;font-size:20px;font-weight:700;">.</span>
+              </td></tr>
+              <tr><td style="padding:32px;">
+                <h1 style="margin:0 0 8px;font-size:22px;color:#111;">Счёт ждёт подтверждения 🔔</h1>
+                <p style="margin:0 0 20px;color:#6b7280;font-size:15px;line-height:1.6;">
+                  Вы оформили заказ на <strong style="color:#111;">${productName}</strong>.<br/>
+                  Счёт выставлен в Kaspi — осталось только подтвердить оплату.
+                </p>
+                <div style="background:#fef3c7;border-radius:10px;padding:16px 20px;margin-bottom:20px;">
+                  <p style="margin:0;color:#92400e;font-size:14px;line-height:1.6;">
+                    <strong>Как подтвердить:</strong><br/>
+                    1. Откройте приложение <strong>Kaspi</strong><br/>
+                    2. Перейдите во вкладку <strong>«Платежи»</strong><br/>
+                    3. Найдите счёт от MyPlaner и нажмите <strong>«Оплатить»</strong>
+                  </p>
+                </div>
+                <p style="margin:0;color:#9ca3af;font-size:13px;">
+                  После оплаты ссылка на таблицу придёт на этот email автоматически.
+                </p>
+              </td></tr>
+              <tr><td style="padding:20px 32px;border-top:1px solid #f0f0f0;">
+                <p style="margin:0;color:#9ca3af;font-size:12px;">
+                  Вопросы? <a href="mailto:support@myplaner.asia" style="color:#7c3aed;">support@myplaner.asia</a>
+                </p>
+              </td></tr>
+            </table>
+          </td></tr>
+        </table>
+      </body>
+      </html>
+    `,
+  })
+}
+
+export async function sendPaymentErrorEmail(to: string, productName: string): Promise<void> {
+  const resend = new Resend(process.env.RESEND_API_KEY)
+  await resend.emails.send({
+    from: 'MyPlaner <noreply@myplaner.asia>',
+    to,
+    subject: 'Не удалось выставить счёт — попробуйте ещё раз',
+    html: `
+      <!DOCTYPE html>
+      <html lang="ru">
+      <head><meta charset="UTF-8"/></head>
+      <body style="margin:0;padding:0;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;padding:40px 16px;">
+          <tr><td align="center">
+            <table width="560" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08);">
+              <tr><td style="background:#111;padding:28px 32px;">
+                <span style="color:#fff;font-size:20px;font-weight:700;">MyPlaner</span>
+                <span style="color:#f59e0b;font-size:20px;font-weight:700;">.</span>
+              </td></tr>
+              <tr><td style="padding:32px;">
+                <h1 style="margin:0 0 8px;font-size:22px;color:#111;">Не удалось выставить счёт 😔</h1>
+                <p style="margin:0 0 20px;color:#6b7280;font-size:15px;line-height:1.6;">
+                  К сожалению, не получилось выставить счёт в Kaspi для заказа <strong style="color:#111;">${productName}</strong>.<br/>
+                  Это может случиться если номер не привязан к Kaspi или временная ошибка сервиса.
+                </p>
+                <a href="https://myplaner.asia" style="display:inline-block;background:#111;color:#fff;font-weight:600;font-size:15px;padding:14px 28px;border-radius:10px;text-decoration:none;">
+                  Попробовать снова →
+                </a>
+                <p style="margin:20px 0 0;color:#9ca3af;font-size:13px;">
+                  Если проблема повторяется — напишите нам, разберёмся вместе.
+                </p>
+              </td></tr>
+              <tr><td style="padding:20px 32px;border-top:1px solid #f0f0f0;">
+                <p style="margin:0;color:#9ca3af;font-size:12px;">
+                  <a href="mailto:support@myplaner.asia" style="color:#7c3aed;">support@myplaner.asia</a> ·
+                  <a href="https://t.me/myplaner_support" style="color:#7c3aed;">Telegram</a>
+                </p>
+              </td></tr>
+            </table>
+          </td></tr>
+        </table>
+      </body>
+      </html>
+    `,
+  })
+}
+
 export async function sendOrderEmail(to: string, productId: string): Promise<void> {
   const resend = new Resend(process.env.RESEND_API_KEY)
   const isBundle = productId === 'bundle-all'

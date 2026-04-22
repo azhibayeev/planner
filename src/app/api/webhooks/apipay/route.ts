@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '../../../../lib/supabase'
 import { sendCapiEvent } from '../../../../lib/capi'
-import { sendOrderEmail } from '../../../../lib/email'
+import { sendOrderEmail, sendPendingReminderEmail, sendPaymentErrorEmail } from '../../../../lib/email'
 
 export async function POST(req: Request) {
   try {
@@ -59,6 +59,52 @@ export async function POST(req: Request) {
       }
 
       return NextResponse.json({ status: 'ok' })
+    }
+
+    if (status === 'pending') {
+      const { data: order } = await supabaseAdmin
+        .from('orders')
+        .select('email_plain, product_id')
+        .eq('order_id', orderId)
+        .single()
+
+      if (order?.email_plain && order?.product_id) {
+        const productNames: Record<string, string> = {
+          'habit-tracker': 'Трекер привычек',
+          'task-tracker': 'Трекер задач',
+          'budget': 'Финансовый планер',
+          'planer-week': 'Планер на неделю',
+          'pink-habit-tracker': 'Розовый трекер привычек',
+          'bundle-all': 'Все таблицы',
+        }
+        const productName = productNames[order.product_id] ?? 'MyPlaner'
+        await sendPendingReminderEmail(order.email_plain, productName)
+        console.log(`Pending reminder sent to ${order.email_plain}`)
+      }
+      return NextResponse.json({ status: 'pending_reminder_sent' })
+    }
+
+    if (status === 'error') {
+      const { data: order } = await supabaseAdmin
+        .from('orders')
+        .select('email_plain, product_id')
+        .eq('order_id', orderId)
+        .single()
+
+      if (order?.email_plain && order?.product_id) {
+        const productNames: Record<string, string> = {
+          'habit-tracker': 'Трекер привычек',
+          'task-tracker': 'Трекер задач',
+          'budget': 'Финансовый планер',
+          'planer-week': 'Планер на неделю',
+          'pink-habit-tracker': 'Розовый трекер привычек',
+          'bundle-all': 'Все таблицы',
+        }
+        const productName = productNames[order.product_id] ?? 'MyPlaner'
+        await sendPaymentErrorEmail(order.email_plain, productName)
+        console.log(`Payment error email sent to ${order.email_plain}`)
+      }
+      return NextResponse.json({ status: 'error_email_sent' })
     }
 
     return NextResponse.json({ status: 'ignored', message: `Status: ${status}` })
