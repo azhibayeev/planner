@@ -88,7 +88,7 @@ export async function sendCapiEvent(event: CapiEvent): Promise<void> {
       event_name: event.eventName,
       event_id: event.eventId,
       order_id: (event.customData?.order_id as string) ?? null,
-      email: event.userData.email ?? null,
+      email: event.userData.email ? sha256(event.userData.email) : null,
       value: (event.customData?.value as number) ?? null,
       currency: (event.customData?.currency as string) ?? null,
       source_url: event.sourceUrl,

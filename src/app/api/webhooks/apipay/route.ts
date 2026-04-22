@@ -87,22 +87,44 @@ export async function POST(req: Request) {
     if (status === 'error') {
       const { data: order } = await supabaseAdmin
         .from('orders')
-        .select('email_plain, product_id')
+        .select('*')
         .eq('order_id', orderId)
         .single()
 
-      if (order?.email_plain && order?.product_id) {
-        const productNames: Record<string, string> = {
-          'habit-tracker': 'Трекер привычек',
-          'task-tracker': 'Трекер задач',
-          'budget': 'Финансовый планер',
-          'planer-week': 'Планер на неделю',
-          'pink-habit-tracker': 'Розовый трекер привычек',
-          'bundle-all': 'Все таблицы',
+      if (order) {
+        // Трекаем неуспешный платёж в Meta CAPI для ретаргетинга
+        await sendCapiEvent({
+          eventName: 'PaymentFailed',
+          eventId: `failed_${orderId}`,
+          sourceUrl: 'https://myplaner.asia',
+          userData: {
+            email: order.email,
+            ip: order.ip_address,
+            userAgent: order.user_agent,
+            fbp: order.fbp,
+            fbc: order.fbc,
+          },
+          customData: {
+            value: order.amount || 0,
+            currency: 'KZT',
+            order_id: orderId,
+          },
+        })
+        console.log(`PaymentFailed CAPI event sent for order ${orderId}`)
+
+        if (order.email_plain && order.product_id) {
+          const productNames: Record<string, string> = {
+            'habit-tracker': 'Трекер привычек',
+            'task-tracker': 'Трекер задач',
+            'budget': 'Финансовый планер',
+            'planer-week': 'Планер на неделю',
+            'pink-habit-tracker': 'Розовый трекер привычек',
+            'bundle-all': 'Все таблицы',
+          }
+          const productName = productNames[order.product_id] ?? 'MyPlaner'
+          await sendPaymentErrorEmail(order.email_plain, productName)
+          console.log(`Payment error email sent to ${order.email_plain}`)
         }
-        const productName = productNames[order.product_id] ?? 'MyPlaner'
-        await sendPaymentErrorEmail(order.email_plain, productName)
-        console.log(`Payment error email sent to ${order.email_plain}`)
       }
       return NextResponse.json({ status: 'error_email_sent' })
     }

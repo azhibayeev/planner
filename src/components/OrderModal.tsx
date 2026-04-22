@@ -63,32 +63,6 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
     setError('')
     const { fbp, fbc } = getFbCookies()
 
-    const addPaymentEventId = uuidv4()
-    pixelTrack('AddPaymentInfo', { content_ids: [product.id], value: product.price, currency: 'KZT' }, addPaymentEventId)
-    fetch('/api/capi', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        eventName: 'AddPaymentInfo', eventId: addPaymentEventId,
-        sourceUrl: window.location.href,
-        userData: { email, fbp, fbc },
-        customData: { content_ids: [product.id], value: product.price, currency: 'KZT' },
-      }),
-    })
-
-    const eventId = uuidv4()
-    pixelTrack('Lead', { content_ids: [product.id], value: product.price, currency: 'KZT' }, eventId)
-    fetch('/api/capi', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        eventName: 'Lead', eventId,
-        sourceUrl: window.location.href,
-        userData: { email, fbp, fbc },
-        customData: { content_ids: [product.id], value: product.price, currency: 'KZT' },
-      }),
-    })
-
     localStorage.setItem('last_order', JSON.stringify({
       value: product.price,
       currency: 'KZT',
@@ -108,6 +82,34 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
       })
       const data = await response.json()
       if (data.success) {
+        // CAPI события отправляем только после подтверждённого создания заказа
+        // чтобы избежать дублей при повторных попытках после ошибки
+        const addPaymentEventId = uuidv4()
+        pixelTrack('AddPaymentInfo', { content_ids: [product.id], value: product.price, currency: 'KZT' }, addPaymentEventId)
+        fetch('/api/capi', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            eventName: 'AddPaymentInfo', eventId: addPaymentEventId,
+            sourceUrl: window.location.href,
+            userData: { email, fbp, fbc },
+            customData: { content_ids: [product.id], value: product.price, currency: 'KZT' },
+          }),
+        })
+
+        const leadEventId = uuidv4()
+        pixelTrack('Lead', { content_ids: [product.id], value: product.price, currency: 'KZT' }, leadEventId)
+        fetch('/api/capi', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            eventName: 'Lead', eventId: leadEventId,
+            sourceUrl: window.location.href,
+            userData: { email, fbp, fbc },
+            customData: { content_ids: [product.id], value: product.price, currency: 'KZT' },
+          }),
+        })
+
         setSent(true)
       } else {
         setError(data.error || 'Ошибка при создании заказа. Попробуйте ещё раз.')
