@@ -31,6 +31,7 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [sent, setSent] = useState(false)
+  const submittingRef = useRef(false)
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
@@ -56,7 +57,8 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!product) return
+    if (!product || submittingRef.current) return
+    submittingRef.current = true
     setLoading(true)
     setError('')
     const { fbp, fbc } = getFbCookies()
@@ -114,6 +116,7 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
       setError('Произошла ошибка. Попробуйте ещё раз.')
     } finally {
       setLoading(false)
+      submittingRef.current = false
     }
   }
 

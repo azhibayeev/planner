@@ -215,7 +215,18 @@ export default function ProductCard({ product, onBuy, onViewDetails }: Props) {
 
         {/* Кнопка Купить — stopPropagation чтобы не открывался детал */}
         <button
-          onClick={(e) => { e.stopPropagation(); onBuy(product) }}
+          onClick={(e) => {
+            e.stopPropagation()
+            const eventId = uuidv4()
+            const { fbp, fbc } = getFbCookies()
+            pixelTrack('ViewContent', { content_ids: [product.id], content_type: 'product', value: product.price, currency: 'KZT' }, eventId)
+            fetch('/api/capi', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ eventName: 'ViewContent', eventId, sourceUrl: window.location.href, userData: { fbp, fbc }, customData: { content_ids: [product.id], content_type: 'product', value: product.price, currency: 'KZT' } }),
+            })
+            onBuy(product)
+          }}
           className="w-full mt-1 bg-black text-white text-sm font-semibold py-3 rounded-xl
                      hover:bg-gray-800 active:scale-[0.98] transition-all duration-150"
         >
