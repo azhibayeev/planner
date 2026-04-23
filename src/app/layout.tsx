@@ -1,6 +1,13 @@
 import type { Metadata, Viewport } from 'next'
+import { Inter } from 'next/font/google'
 import './globals.css'
 import PixelScript from '@/components/PixelScript'
+
+const inter = Inter({
+  subsets: ['latin', 'cyrillic'],
+  weight: ['400', '500', '600', '700', '800'],
+  display: 'swap',
+})
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -51,7 +58,7 @@ const PIXEL_ID = process.env.NEXT_PUBLIC_PIXEL_ID || ''
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ru">
-      <body>
+      <body className={inter.className}>
         {PIXEL_ID && <PixelScript pixelId={PIXEL_ID} />}
         {children}
       </body>

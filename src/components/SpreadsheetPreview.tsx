@@ -36,16 +36,24 @@ export default function SpreadsheetPreview() {
     const cells: [number, number][] = []
     INITIAL_HABITS.forEach((_, ri) => DAYS.forEach((_, ci) => cells.push([ri, ci])))
 
-    cells.forEach(([ri, ci], i) =>
-      setTimeout(() => {
-        setRevealed(prev => {
-          const next = prev.map(r => [...r])
-          next[ri][ci] = true
-          return next
-        })
-      }, 300 + i * 55)
-    )
-    setTimeout(() => setShowBars(true), 300 + cells.length * 55 + 150)
+    let index = 0
+    const start = setTimeout(() => {
+      const interval = setInterval(() => {
+        if (index < cells.length) {
+          const [ri, ci] = cells[index++]
+          setRevealed(prev => {
+            const next = prev.map(r => [...r])
+            next[ri][ci] = true
+            return next
+          })
+        } else {
+          clearInterval(interval)
+          setShowBars(true)
+        }
+      }, 55)
+    }, 300)
+
+    return () => clearTimeout(start)
   }, [])
 
   return (
@@ -75,8 +83,8 @@ export default function SpreadsheetPreview() {
             </p>
             <div className="mt-1 h-1 bg-gray-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-violet-500 rounded-full transition-all duration-1000"
-                style={{ width: showBars ? `${overallPct}%` : '0%' }}
+                className="h-full bg-violet-500 rounded-full origin-left transition-transform duration-1000"
+                style={{ transform: showBars ? `scaleX(${overallPct / 100})` : 'scaleX(0)' }}
               />
             </div>
           </div>
@@ -129,7 +137,7 @@ export default function SpreadsheetPreview() {
                       <td key={ci} className="border-r border-b border-gray-100 text-center p-1">
                         <div
                           onClick={() => toggle(ri, ci)}
-                          className={`w-5 h-5 mx-auto rounded-md flex items-center justify-center transition-all duration-200 cursor-pointer select-none ${
+                          className={`w-5 h-5 mx-auto rounded-md flex items-center justify-center transition-[transform,opacity] duration-200 cursor-pointer select-none ${
                             revealed[ri]?.[ci]
                               ? done
                                 ? `${habit.color} text-white scale-100 opacity-100 hover:opacity-80 active:scale-90`
@@ -153,8 +161,8 @@ export default function SpreadsheetPreview() {
                         </span>
                         <div className="w-7 h-1 bg-gray-100 rounded-full overflow-hidden">
                           <div
-                            className={`h-full rounded-full transition-all duration-700 ${p===100?'bg-emerald-500':p>=70?'bg-blue-500':'bg-amber-400'}`}
-                            style={{ width: showBars ? `${p}%` : '0%' }}
+                            className={`h-full rounded-full origin-left transition-transform duration-700 ${p===100?'bg-emerald-500':p>=70?'bg-blue-500':'bg-amber-400'}`}
+                            style={{ transform: showBars ? `scaleX(${p / 100})` : 'scaleX(0)' }}
                           />
                         </div>
                       </div>
