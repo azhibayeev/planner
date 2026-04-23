@@ -224,8 +224,8 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
               className="w-full bg-amber-50 border border-amber-300 rounded-xl px-3.5 py-2.5 flex items-center justify-between hover:bg-amber-100 transition-colors"
             >
               <span className="text-sm font-semibold text-gray-900">
-                🔥 Все 5 таблиц — 6 000 ₸{' '}
-                <span className="text-gray-400 line-through font-normal text-xs">12 500 ₸</span>
+                🔥 Все 5 таблиц — 6 990 ₸{' '}
+                <span className="text-gray-400 line-through font-normal text-xs">14 990 ₸</span>
               </span>
               <svg className="w-4 h-4 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -281,8 +281,7 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
                   rel="noopener noreferrer"
                   className="mt-2 flex items-center gap-2 bg-[#25D366] text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-[#20bc5a] transition-colors w-full justify-center"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/500px-WhatsApp.svg.png" alt="WhatsApp" className="w-4 h-4" />
+                  <Image src="/icons/whatsapp.png" alt="WhatsApp" width={16} height={16} />
                   Оплатить через WhatsApp
                 </a>
               </div>
@@ -322,8 +321,7 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
 
             {/* Иконки оплаты */}
             <div className="flex items-center justify-center gap-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="https://fund2.kz/wp-content/uploads/2022/02/content_%D0%BA%D0%B0%D1%81%D0%BF%D0%B8.png" alt="Kaspi" className="h-5 object-contain" />
+              <Image src="/icons/kaspi.png" alt="Kaspi" width={60} height={20} className="object-contain" />
               <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
