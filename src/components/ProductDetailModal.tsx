@@ -1,11 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Image from 'next/image'
 import { Product } from '@/lib/products'
 import Button from './ui/Button'
 import Badge from './ui/Badge'
 import Price, { discountPercent } from './ui/Price'
+import ImageWithSkeleton from './ui/ImageSkeleton'
 
 interface Props {
   product: Product
@@ -84,7 +84,7 @@ export default function ProductDetailModal({ product, onClose, onBuy }: Props) {
               <>
                 {/* Картинка */}
                 <div className="relative w-full h-full min-h-[260px] sm:min-h-[360px] lg:min-h-0">
-                  <Image
+                  <ImageWithSkeleton
                     key={slide}
                     src={screenshots[slide]}
                     alt={`${product.name} — скриншот ${slide + 1}`}

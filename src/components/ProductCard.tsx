@@ -1,11 +1,11 @@
 'use client'
 
-import Image from 'next/image'
 import { Product } from '@/lib/products'
 import { trackEvent } from '@/lib/tracking'
 import Button from './ui/Button'
 import Badge from './ui/Badge'
 import Price, { discountPercent } from './ui/Price'
+import ImageWithSkeleton from './ui/ImageSkeleton'
 
 interface Props {
   product: Product
@@ -106,7 +106,7 @@ export default function ProductCard({ product, onBuy, onViewDetails }: Props) {
         aria-label={`Подробнее о товаре ${product.name}`}
       >
         {product.coverUrl ? (
-          <Image
+          <ImageWithSkeleton
             src={product.coverUrl}
             alt={product.name}
             fill
