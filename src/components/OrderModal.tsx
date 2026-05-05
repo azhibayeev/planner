@@ -23,6 +23,9 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
   const [error, setError] = useState('')
   const [sent, setSent] = useState(false)
   const submittingRef = useRef(false)
+  // Защита от двойного fire в React Strict Mode (dev). На проде useEffect
+  // и так вызывается один раз, ref здесь не мешает.
+  const initiateFiredFor = useRef<string | null>(null)
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
@@ -31,6 +34,8 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
 
   useEffect(() => {
     if (!initialProduct) return
+    if (initiateFiredFor.current === initialProduct.id) return
+    initiateFiredFor.current = initialProduct.id
     trackEvent({
       eventName: 'InitiateCheckout',
       contentIds: [initialProduct.id],
@@ -46,12 +51,6 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
     setLoading(true)
     setError('')
 
-    localStorage.setItem('last_order', JSON.stringify({
-      value: product.price,
-      currency: 'KZT',
-      content_ids: [product.id],
-    }))
-
     try {
       const response = await fetch('/api/checkout', {
         method: 'POST',
@@ -65,6 +64,14 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
       })
       const data = await response.json()
       if (data.success) {
+        // Сохраняем orderId — PurchaseTracker на /success использует его как event_id
+        // для дедупликации с серверным Purchase из webhook.
+        localStorage.setItem('last_order', JSON.stringify({
+          value: product.price,
+          currency: 'KZT',
+          content_ids: [product.id],
+          order_id: data.orderId,
+        }))
         // CAPI события отправляем только после подтверждённого создания заказа
         // чтобы избежать дублей при повторных попытках после ошибки
         trackEvent({

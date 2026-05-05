@@ -112,8 +112,10 @@ export async function POST(req: Request) {
   const apiPayData = await apiPayResponse.json();
   console.log('ApiPay Success Response:', JSON.stringify(apiPayData));
 
-  // ApiPay отправляет push в Kaspi-приложение — redirect URL не возвращается
-  return NextResponse.json({ success: true, invoiceId: apiPayData.id });
+  // ApiPay отправляет push в Kaspi-приложение — redirect URL не возвращается.
+  // Возвращаем orderId, чтобы клиент использовал его как event_id на success-странице
+  // → Purchase event дедуплицируется с серверным (webhook).
+  return NextResponse.json({ success: true, invoiceId: apiPayData.id, orderId });
 
   } catch (error: any) {
     console.error('Checkout Error:', error);
