@@ -18,7 +18,7 @@ export default function Hero() {
 
             <p className="text-gray-400 text-base md:text-lg mb-8 max-w-md mx-auto lg:mx-0 leading-relaxed">
               Готовые Google Таблицы для привычек, задач, финансов и планирования.
-              Уже используют <span className="text-white font-semibold">500+ казахстанцев</span> — просто скопируй и начни.
+              Уже используют <span className="text-white font-semibold">800+ казахстанцев</span> — просто скопируй и начни.
             </p>
 
             {/* CTA */}
@@ -43,7 +43,7 @@ export default function Hero() {
               <span className="text-white font-semibold text-sm">4.8</span>
               <span className="text-gray-500 text-sm">· 693 отзыва</span>
               <span className="text-gray-700">·</span>
-              <span className="text-gray-400 text-sm">500+ покупателей</span>
+              <span className="text-gray-400 text-sm">800+ покупателей</span>
             </div>
           </div>
 

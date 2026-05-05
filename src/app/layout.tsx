@@ -51,6 +51,11 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true },
   },
+  verification: {
+    other: {
+      'facebook-domain-verification': 'eirghz9r0wmm919jrnmphy4oahe40r',
+    },
+  },
 }
 
 const PIXEL_ID = process.env.NEXT_PUBLIC_PIXEL_ID || ''
