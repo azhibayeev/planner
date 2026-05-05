@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Product } from '@/lib/products'
+import Button from './ui/Button'
+import Badge from './ui/Badge'
+import Price, { discountPercent } from './ui/Price'
 
 interface Props {
   product: Product
@@ -44,9 +47,7 @@ export default function ProductDetailModal({ product, onClose, onBuy }: Props) {
     return () => window.removeEventListener('keydown', handler)
   }, [onClose, screenshots.length])
 
-  const discountPercent = product.oldPrice
-    ? Math.round((1 - product.price / product.oldPrice) * 100)
-    : null
+  const off = discountPercent(product.price, product.oldPrice)
 
   const prev = () => setSlide(s => (s - 1 + screenshots.length) % screenshots.length)
   const next = () => setSlide(s => (s + 1) % screenshots.length)
@@ -61,11 +62,7 @@ export default function ProductDetailModal({ product, onClose, onBuy }: Props) {
         {/* Шапка */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 flex-shrink-0">
           <div className="flex items-center gap-3">
-            {product.tag && (
-              <span className="bg-gray-100 text-gray-600 text-xs font-semibold px-2.5 py-1 rounded-full">
-                {product.tag}
-              </span>
-            )}
+            {product.tag && <Badge>{product.tag}</Badge>}
             <h2 className="font-bold text-base sm:text-lg leading-tight">{product.name}</h2>
           </div>
           <button
@@ -175,24 +172,18 @@ export default function ProductDetailModal({ product, onClose, onBuy }: Props) {
 
             {/* Цена и кнопка */}
             <div className="mt-auto flex flex-col gap-3">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-2xl">{product.price.toLocaleString('ru-RU')} ₸</span>
-                {product.oldPrice && (
-                  <span className="text-gray-400 text-base line-through">{product.oldPrice.toLocaleString('ru-RU')} ₸</span>
-                )}
-                {discountPercent && (
-                  <span className="bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-full">−{discountPercent}%</span>
+              <div className="flex items-baseline gap-2 flex-wrap">
+                <Price price={product.price} oldPrice={product.oldPrice} size="lg" />
+                {off && (
+                  <span className="bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-full">−{off}%</span>
                 )}
               </div>
 
-              <button
-                onClick={() => { onClose(); onBuy(product) }}
-                className="w-full bg-black text-white font-semibold py-3 rounded-xl hover:bg-gray-800 transition-colors"
-              >
+              <Button onClick={() => { onClose(); onBuy(product) }} size="lg" className="w-full">
                 Купить сейчас
-              </button>
+              </Button>
 
-              <p className="text-center text-xs text-gray-400">
+              <p className="text-center text-xs text-ink-soft">
                 Доступ навсегда · Без подписки
               </p>
             </div>

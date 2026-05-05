@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Product } from '@/lib/products'
-import { pixelTrack, getFbCookies } from '@/lib/pixel'
-import { v4 as uuidv4 } from 'uuid'
+import { trackEvent } from '@/lib/tracking'
+import Button from './ui/Button'
+import Badge from './ui/Badge'
+import Price, { discountPercent } from './ui/Price'
 
 interface Props {
   product: Product
@@ -14,12 +15,12 @@ interface Props {
 
 function StarRating({ rating }: { rating: number }) {
   return (
-    <div className="flex items-center gap-0.5">
+    <div className="flex items-center gap-0.5" aria-label={`Оценка ${rating} из 5`}>
       {[1, 2, 3, 4, 5].map((star) => {
         const filled = rating >= star
         const half = !filled && rating >= star - 0.5
         return (
-          <svg key={star} className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="none">
+          <svg key={star} className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <defs>
               <linearGradient id={`half-${star}-${rating}`}>
                 <stop offset="50%" stopColor="#f59e0b" />
@@ -71,54 +72,40 @@ const productIcons: Record<string, JSX.Element> = {
 }
 
 export default function ProductCard({ product, onBuy, onViewDetails }: Props) {
-  const [viewers, setViewers] = useState(18)
+  const off = discountPercent(product.price, product.oldPrice)
 
-  useEffect(() => {
-    setViewers(Math.floor(Math.random() * 17) + 12)
-    const id = setInterval(() => {
-      setViewers(v => Math.min(28, Math.max(12, v + (Math.random() < 0.5 ? 1 : -1))))
-    }, 8000)
-    return () => clearInterval(id)
-  }, [])
-
-  const handleCardClick = () => {
-    const eventId = uuidv4()
-    const { fbp, fbc } = getFbCookies()
-    pixelTrack('ViewContent', {
-      content_ids: [product.id],
-      content_type: 'product',
+  const trackView = () => {
+    trackEvent({
+      eventName: 'ViewContent',
+      contentIds: [product.id],
+      contentType: 'product',
       value: product.price,
       currency: 'KZT',
-    }, eventId)
-    fetch('/api/capi', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        eventName: 'ViewContent', eventId,
-        sourceUrl: window.location.href,
-        userData: { fbp, fbc },
-        customData: { content_ids: [product.id], content_type: 'product', value: product.price, currency: 'KZT' },
-      }),
     })
+  }
+
+  const handleCoverClick = () => {
+    trackView()
     onViewDetails(product)
   }
 
-  const discountPercent = product.oldPrice
-    ? Math.round((1 - product.price / product.oldPrice) * 100)
-    : null
+  const handleBuyClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    trackView()
+    onBuy(product)
+  }
 
   return (
-    <div
-      onClick={handleCardClick}
-      className="border border-gray-200 rounded-2xl overflow-hidden flex flex-col bg-white cursor-pointer
-                 hover:shadow-xl hover:shadow-gray-200/80 hover:-translate-y-1 hover:border-gray-300
-                 active:scale-[0.98] transition-all duration-200 group"
-    >
-      {/* Превью */}
-      <div className={`bg-gradient-to-br ${product.color} h-44 flex items-center justify-center relative overflow-hidden`}>
+    <div className="border border-gray-200 rounded-2xl overflow-hidden flex flex-col bg-white hover:shadow-xl hover:shadow-gray-200/80 hover:-translate-y-1 hover:border-gray-300 transition-all duration-200 group">
 
+      {/* Превью — кликабельно для деталей */}
+      <button
+        type="button"
+        onClick={handleCoverClick}
+        className={`bg-gradient-to-br ${product.color} h-44 flex items-center justify-center relative overflow-hidden cursor-pointer w-full`}
+        aria-label={`Подробнее о товаре ${product.name}`}
+      >
         {product.coverUrl ? (
-          /* Обложка */
           <Image
             src={product.coverUrl}
             alt={product.name}
@@ -127,7 +114,6 @@ export default function ProductCard({ product, onBuy, onViewDetails }: Props) {
             sizes="(max-width: 640px) 100vw, 320px"
           />
         ) : (
-          /* Иконка-заглушка */
           <div className="transition-transform duration-300 group-hover:scale-110">
             {productIcons[product.id] ?? (
               <svg className="w-14 h-14 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -137,9 +123,9 @@ export default function ProductCard({ product, onBuy, onViewDetails }: Props) {
           </div>
         )}
 
-        {/* Overlay при hover */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 flex items-center justify-center">
-          <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/90 text-black text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5">
+        {/* Hover overlay */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200 flex items-center justify-center">
+          <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/90 text-black text-xs font-semibold px-3 py-1.5 rounded-full inline-flex items-center gap-1.5">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -148,89 +134,45 @@ export default function ProductCard({ product, onBuy, onViewDetails }: Props) {
           </span>
         </div>
 
-        {/* Viewers */}
-        <div className="absolute bottom-3 right-3 bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-          {viewers} смотрят
-        </div>
-
-        {/* Бейджи — только для карточек без обложки */}
+        {/* Бейджи на обложках без cover */}
         {!product.coverUrl && (
           <div className="absolute top-3 left-3 flex gap-1.5">
-            {product.tag && (
-              <span className="bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1 rounded-full border border-white/30">
-                {product.tag}
-              </span>
-            )}
-            {discountPercent && (
-              <span className="bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-                −{discountPercent}%
-              </span>
-            )}
+            {product.tag && <Badge tone="overlay">{product.tag}</Badge>}
+            {off && <Badge tone="danger">−{off}%</Badge>}
           </div>
         )}
-      </div>
+      </button>
 
       {/* Контент */}
       <div className="p-4 flex flex-col flex-1 gap-2">
 
-        {/* Бейджи под обложкой */}
-        {product.coverUrl && (product.tag || discountPercent) && (
+        {product.coverUrl && (product.tag || off) && (
           <div className="flex gap-1.5">
-            {product.tag && (
-              <span className="bg-gray-100 text-gray-600 text-xs font-semibold px-2.5 py-1 rounded-full">
-                {product.tag}
-              </span>
-            )}
-            {discountPercent && (
-              <span className="bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-                −{discountPercent}%
-              </span>
-            )}
+            {product.tag && <Badge>{product.tag}</Badge>}
+            {off && <Badge tone="danger">−{off}%</Badge>}
           </div>
         )}
 
-        {/* Название + рейтинг */}
         <h3 className="font-bold text-base leading-snug">{product.name}</h3>
         <div className="flex items-center gap-1.5">
           <StarRating rating={product.rating} />
-          <span className="text-sm font-semibold text-gray-800">{product.rating}</span>
-          <span className="text-xs text-gray-400">({product.reviewCount.toLocaleString('ru-RU')})</span>
+          <span className="text-sm font-semibold text-ink">{product.rating}</span>
+          <span className="text-xs text-ink-soft">({product.reviewCount.toLocaleString('ru-RU')})</span>
         </div>
 
-        <p className="text-gray-500 text-sm leading-relaxed flex-1 line-clamp-2">{product.description}</p>
+        <p className="text-ink-muted text-sm leading-relaxed flex-1 line-clamp-2">{product.description}</p>
 
-        {/* Цена */}
-        <div className="flex items-center gap-2 mt-1">
-          <span className="font-extrabold text-xl">{product.price.toLocaleString('ru-RU')} ₸</span>
-          {product.oldPrice && (
-            <span className="text-gray-400 text-sm line-through">{product.oldPrice.toLocaleString('ru-RU')} ₸</span>
-          )}
-          {discountPercent && (
-            <span className="ml-auto text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-              Экономия {(product.oldPrice! - product.price).toLocaleString('ru-RU')} ₸
-            </span>
-          )}
-        </div>
+        <Price price={product.price} oldPrice={product.oldPrice} size="md" showSavings className="mt-1" />
 
-        {/* Кнопка Купить — stopPropagation чтобы не открывался детал */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            const eventId = uuidv4()
-            const { fbp, fbc } = getFbCookies()
-            pixelTrack('ViewContent', { content_ids: [product.id], content_type: 'product', value: product.price, currency: 'KZT' }, eventId)
-            fetch('/api/capi', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ eventName: 'ViewContent', eventId, sourceUrl: window.location.href, userData: { fbp, fbc }, customData: { content_ids: [product.id], content_type: 'product', value: product.price, currency: 'KZT' } }),
-            })
-            onBuy(product)
-          }}
-          className="w-full mt-1 bg-black text-white text-sm font-semibold py-3 rounded-xl
-                     hover:bg-gray-800 active:scale-[0.98] transition-all duration-150"
-        >
+        <Button onClick={handleBuyClick} className="mt-2">
           Купить за {product.price.toLocaleString('ru-RU')} ₸
+        </Button>
+        <button
+          type="button"
+          onClick={handleCoverClick}
+          className="text-xs text-ink-muted hover:text-ink transition-colors py-1"
+        >
+          Подробнее →
         </button>
       </div>
     </div>

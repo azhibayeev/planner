@@ -3,25 +3,16 @@
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { Product, products } from '@/lib/products'
-import { pixelTrack, getFbCookies } from '@/lib/pixel'
-import { v4 as uuidv4 } from 'uuid'
+import { trackEvent } from '@/lib/tracking'
+import Button from './ui/Button'
+import Price from './ui/Price'
+import TrustBadges, { GuaranteeBadge } from './ui/TrustBadges'
 
 const bundleProduct = products.find(p => p.id === 'bundle-all')!
 
 interface Props {
   product: Product | null
   onClose: () => void
-}
-
-function Countdown() {
-  const [seconds, setSeconds] = useState(10 * 60)
-  useEffect(() => {
-    const id = setInterval(() => setSeconds(s => Math.max(0, s - 1)), 1000)
-    return () => clearInterval(id)
-  }, [])
-  const m = String(Math.floor(seconds / 60)).padStart(2, '0')
-  const s = String(seconds % 60).padStart(2, '0')
-  return <>{m}:{s}</>
 }
 
 export default function OrderModal({ product: initialProduct, onClose }: Props) {
@@ -40,18 +31,11 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
 
   useEffect(() => {
     if (!initialProduct) return
-    const eventId = uuidv4()
-    const { fbp, fbc } = getFbCookies()
-    pixelTrack('InitiateCheckout', { content_ids: [initialProduct.id], value: initialProduct.price, currency: 'KZT' }, eventId)
-    fetch('/api/capi', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        eventName: 'InitiateCheckout', eventId,
-        sourceUrl: window.location.href,
-        userData: { fbp, fbc },
-        customData: { content_ids: [initialProduct.id], value: initialProduct.price, currency: 'KZT' },
-      }),
+    trackEvent({
+      eventName: 'InitiateCheckout',
+      contentIds: [initialProduct.id],
+      value: initialProduct.price,
+      currency: 'KZT',
     })
   }, [initialProduct])
 
@@ -61,7 +45,6 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
     submittingRef.current = true
     setLoading(true)
     setError('')
-    const { fbp, fbc } = getFbCookies()
 
     localStorage.setItem('last_order', JSON.stringify({
       value: product.price,
@@ -84,32 +67,20 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
       if (data.success) {
         // CAPI события отправляем только после подтверждённого создания заказа
         // чтобы избежать дублей при повторных попытках после ошибки
-        const addPaymentEventId = uuidv4()
-        pixelTrack('AddPaymentInfo', { content_ids: [product.id], value: product.price, currency: 'KZT' }, addPaymentEventId)
-        fetch('/api/capi', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            eventName: 'AddPaymentInfo', eventId: addPaymentEventId,
-            sourceUrl: window.location.href,
-            userData: { email, fbp, fbc },
-            customData: { content_ids: [product.id], value: product.price, currency: 'KZT' },
-          }),
+        trackEvent({
+          eventName: 'AddPaymentInfo',
+          contentIds: [product.id],
+          value: product.price,
+          currency: 'KZT',
+          email,
         })
-
-        const leadEventId = uuidv4()
-        pixelTrack('Lead', { content_ids: [product.id], value: product.price, currency: 'KZT' }, leadEventId)
-        fetch('/api/capi', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            eventName: 'Lead', eventId: leadEventId,
-            sourceUrl: window.location.href,
-            userData: { email, fbp, fbc },
-            customData: { content_ids: [product.id], value: product.price, currency: 'KZT' },
-          }),
+        trackEvent({
+          eventName: 'Lead',
+          contentIds: [product.id],
+          value: product.price,
+          currency: 'KZT',
+          email,
         })
-
         setSent(true)
       } else {
         setError(data.error || 'Ошибка при создании заказа. Попробуйте ещё раз.')
@@ -132,22 +103,19 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
       <div className="bg-white rounded-t-3xl sm:rounded-2xl w-full sm:max-w-md p-8 shadow-2xl text-center">
         <div className="text-5xl mb-4">✅</div>
         <h2 className="text-xl font-bold mb-2">Счёт выставлен!</h2>
-        <p className="text-gray-600 text-sm mb-4">
+        <p className="text-ink-muted text-sm mb-4">
           Откройте приложение <strong>Kaspi</strong> на вашем телефоне и подтвердите оплату во вкладке «Платежи».
         </p>
-        <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-6 text-left">
-          <p className="text-amber-800 text-sm font-semibold mb-0.5">📧 Доступ придёт на почту</p>
+        <div className="bg-accent-soft border border-accent/30 rounded-xl px-4 py-3 mb-6 text-left">
+          <p className="text-accent-hover text-sm font-semibold mb-0.5">📧 Доступ придёт на почту</p>
           <p className="text-amber-700 text-xs">
             Сразу после оплаты мы автоматически отправим ссылку на <strong>{email}</strong>. Проверьте папку «Спам», если письмо не пришло в течение 5 минут.
           </p>
         </div>
-        <button
-          onClick={onClose}
-          className="w-full bg-black text-white font-semibold py-3 rounded-xl hover:bg-gray-800 transition-colors mb-3"
-        >
+        <Button variant="primary" onClick={onClose} className="w-full mb-3">
           Понятно
-        </button>
-        <p className="text-xs text-gray-400">
+        </Button>
+        <p className="text-xs text-ink-soft">
           Возникли проблемы?{' '}
           <a href="https://t.me/myplaner_support" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
             Напишите нам в Telegram
@@ -168,17 +136,12 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
 
         {/* Шапка */}
         <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100">
-          <h2 className="text-xl font-bold">Корзина <span className="text-gray-400 font-normal">• 1 товар</span></h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-black transition-colors p-1">
+          <h2 className="text-xl font-bold">Оформление <span className="text-ink-soft font-normal">· 1 товар</span></h2>
+          <button onClick={onClose} aria-label="Закрыть" className="text-ink-soft hover:text-ink transition-colors p-1">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
-        </div>
-
-        {/* Таймер */}
-        <div className="bg-[#1a2235] text-white text-center text-sm font-semibold py-2.5 px-4">
-          Заказ зарезервирован на <Countdown />
         </div>
 
         {/* Скроллируемый контент */}
@@ -186,7 +149,6 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
 
           {/* Карточка товара */}
           <div className="flex gap-3 items-start py-3 border-b border-gray-100">
-            {/* Превью */}
             <div className={`relative w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br ${product.color}`}>
               {product.coverUrl ? (
                 <Image src={product.coverUrl} alt={product.name} fill className="object-cover" sizes="64px" />
@@ -199,15 +161,9 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
               )}
             </div>
 
-            {/* Инфо */}
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-sm leading-snug">{product.name}</p>
-              <div className="flex items-baseline gap-2 mt-1">
-                <span className="font-bold text-base">{product.price.toLocaleString('ru-RU')} ₸</span>
-                {product.oldPrice && (
-                  <span className="text-gray-400 text-xs line-through">{product.oldPrice.toLocaleString('ru-RU')} ₸</span>
-                )}
-              </div>
+              <Price price={product.price} oldPrice={product.oldPrice} size="sm" className="mt-1" />
               {savings && (
                 <p className="text-emerald-600 text-xs font-medium mt-0.5">
                   Экономия {savings.toLocaleString('ru-RU')} ₸
@@ -216,18 +172,18 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
             </div>
           </div>
 
-          {/* Upsell */}
+          {/* Upsell на bundle */}
           {product.id !== 'bundle-all' && (
             <button
               type="button"
               onClick={() => setProduct(bundleProduct)}
-              className="w-full bg-amber-50 border border-amber-300 rounded-xl px-3.5 py-2.5 flex items-center justify-between hover:bg-amber-100 transition-colors"
+              className="w-full bg-accent-soft border border-accent/40 rounded-xl px-3.5 py-2.5 flex items-center justify-between hover:bg-accent-soft/80 transition-colors"
             >
-              <span className="text-sm font-semibold text-gray-900">
+              <span className="text-sm font-semibold text-ink">
                 🔥 Все 5 таблиц — 6 990 ₸{' '}
-                <span className="text-gray-400 line-through font-normal text-xs">14 990 ₸</span>
+                <span className="text-ink-soft line-through font-normal text-xs">14 990 ₸</span>
               </span>
-              <svg className="w-4 h-4 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-accent-hover flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
@@ -237,7 +193,7 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
           <form onSubmit={handleCheckout} className="flex flex-col gap-3">
             <div>
               <label className="block text-sm font-medium mb-1.5">
-                Email <span className="text-amber-600 font-normal text-xs">— сюда придёт доступ</span>
+                Email <span className="text-accent-hover font-normal text-xs">— сюда придёт доступ</span>
               </label>
               <input
                 type="email"
@@ -247,12 +203,12 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
                 required
                 autoComplete="email"
                 inputMode="email"
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1.5">
-                Телефон <span className="text-gray-400 font-normal text-xs">— счёт придёт в Kaspi</span>
+                Телефон <span className="text-ink-soft font-normal text-xs">— счёт придёт в Kaspi</span>
               </label>
               <input
                 type="tel"
@@ -262,9 +218,9 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
                 required
                 autoComplete="tel"
                 inputMode="tel"
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-ink-soft mt-1">
                 Нет Kaspi?{' '}
                 <a href="http://wa.me/77079297008" target="_blank" rel="noopener noreferrer" className="text-emerald-600 font-medium hover:underline">
                   Напишите нам в WhatsApp
@@ -279,7 +235,7 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
                   href="http://wa.me/77079297008"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-2 flex items-center gap-2 bg-[#25D366] text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-[#20bc5a] transition-colors w-full justify-center"
+                  className="mt-2 flex items-center gap-2 bg-[#25D366] text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-[#1ebe5d] transition-colors w-full justify-center"
                 >
                   <Image src="/icons/whatsapp.png" alt="WhatsApp" width={16} height={16} />
                   Оплатить через WhatsApp
@@ -291,7 +247,7 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
             <div className="border-t border-gray-100 pt-3 flex flex-col gap-1">
               {savings && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Скидка</span>
+                  <span className="text-ink-muted">Скидка</span>
                   <span className="text-emerald-600 font-medium">−{savings.toLocaleString('ru-RU')} ₸</span>
                 </div>
               )}
@@ -301,34 +257,14 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
               </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#1a2235] text-white font-semibold py-3.5 rounded-xl hover:bg-[#111827] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-base"
-            >
-              {loading ? (
-                <>
-                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                  </svg>
-                  Переходим к оплате...
-                </>
-              ) : (
-                'Перейти к оплате'
-              )}
-            </button>
+            {/* Гарантия */}
+            <GuaranteeBadge />
 
-            {/* Иконки оплаты */}
-            <div className="flex items-center justify-center gap-3">
-              <Image src="/icons/kaspi.png" alt="Kaspi" width={60} height={20} className="object-contain" />
-              <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-              <span className="text-xs text-gray-400">
-                Безопасная оплата · <a href="/privacy" className="hover:text-black">политика</a>
-              </span>
-            </div>
+            <Button type="submit" loading={loading} size="lg" className="w-full">
+              {loading ? 'Создаём счёт...' : `Оплатить · ${product.price.toLocaleString('ru-RU')} ₸`}
+            </Button>
+
+            <TrustBadges />
           </form>
         </div>
       </div>
