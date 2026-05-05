@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '../../../lib/supabase';
+import { checkRateLimit, getClientIp } from '../../../lib/rateLimit';
 import * as crypto from 'crypto';
+
+const WINDOW_MS = 10 * 60 * 1000 // 10 minutes
+const IP_LIMIT = 5
+const PHONE_LIMIT = 3
 
 export async function POST(req: Request) {
   try {
@@ -12,6 +17,27 @@ export async function POST(req: Request) {
     const phone = digits.startsWith('7') ? '8' + digits.slice(1)
                 : digits.startsWith('8') ? digits
                 : digits
+
+    // Rate limit: защита от создания массы счетов одним IP / на один телефон
+    const clientIp = getClientIp(req)
+    const ipCheck = checkRateLimit(`checkout:ip:${clientIp}`, IP_LIMIT, WINDOW_MS)
+    if (!ipCheck.allowed) {
+      const retryAfter = Math.ceil((ipCheck.resetAt - Date.now()) / 1000)
+      return NextResponse.json(
+        { error: 'Слишком много попыток. Попробуйте через несколько минут.' },
+        { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+      )
+    }
+    if (phone) {
+      const phoneCheck = checkRateLimit(`checkout:phone:${phone}`, PHONE_LIMIT, WINDOW_MS)
+      if (!phoneCheck.allowed) {
+        const retryAfter = Math.ceil((phoneCheck.resetAt - Date.now()) / 1000)
+        return NextResponse.json(
+          { error: 'На этот номер уже создано несколько счетов. Подождите 10 минут.' },
+          { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+        )
+      }
+    }
 
     // 1. Генерируем уникальный ID заказа
     const orderId = `order_${Date.now()}`;
