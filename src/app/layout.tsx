@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/previews/habit-tracker-cover.jpg',
+        url: '/previews/habit-tracker-cover.webp',
         width: 1200,
         height: 630,
         alt: 'Planer.Shop — Google Таблицы для продуктивности',
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Planer.Shop — Google Таблицы для продуктивности',
     description: 'Готовые Google Таблицы для трекинга привычек, задач, финансов и планирования.',
-    images: ['/previews/habit-tracker-cover.jpg'],
+    images: ['/previews/habit-tracker-cover.webp'],
   },
   robots: {
     index: true,
