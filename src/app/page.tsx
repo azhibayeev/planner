@@ -1,14 +1,13 @@
 import Header from '@/components/Header'
 import Hero from '@/components/Hero'
-import CountdownTimer from '@/components/CountdownTimer'
 import HowItWorks from '@/components/HowItWorks'
 import ProductCatalog from '@/components/ProductCatalog'
 import ForWhom from '@/components/ForWhom'
 import Reviews from '@/components/Reviews'
 import FAQ from '@/components/FAQ'
 import Footer from '@/components/Footer'
-import RecentPurchaseToast from '@/components/RecentPurchaseToast'
 import StickyBuyButton from '@/components/StickyBuyButton'
+import { CheckoutProvider } from '@/components/CheckoutContext'
 
 const faqSchema = {
   '@context': 'https://schema.org',
@@ -49,17 +48,17 @@ export default function Home() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
-      <Header />
-      <Hero />
-      <CountdownTimer />
-      <HowItWorks />
-      <ProductCatalog />
-      <ForWhom />
-      <Reviews />
-      <FAQ />
-      <Footer />
-      <RecentPurchaseToast />
-      <StickyBuyButton />
+      <CheckoutProvider>
+        <Header />
+        <Hero />
+        <HowItWorks />
+        <ProductCatalog />
+        <ForWhom />
+        <Reviews />
+        <FAQ />
+        <Footer />
+        <StickyBuyButton />
+      </CheckoutProvider>
     </main>
   )
 }

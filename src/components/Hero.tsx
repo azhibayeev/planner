@@ -1,6 +1,16 @@
+'use client'
+
 import SpreadsheetPreview from './SpreadsheetPreview'
+import Button from './ui/Button'
+import { products } from '@/lib/products'
+import { useCheckout } from './CheckoutContext'
+import { discountPercent } from './ui/Price'
 
 export default function Hero() {
+  const { openCheckout } = useCheckout()
+  const bundle = products.find(p => p.id === 'bundle-all')!
+  const off = discountPercent(bundle.price, bundle.oldPrice)
+
   return (
     <section className="bg-black text-white pt-16 pb-12 px-4 overflow-hidden">
       <div className="max-w-6xl mx-auto">
@@ -11,28 +21,41 @@ export default function Hero() {
           {/* Левая колонка — текст (на мобилке идёт второй) */}
           <div className="text-center lg:text-left order-2 lg:order-1">
             <h1 className="text-4xl md:text-5xl font-extrabold leading-tight mb-5">
-              Хватит терять время —
+              5 готовых Google Таблиц,
               <br />
-              <span className="text-accent">возьми жизнь под контроль</span>
+              <span className="text-accent">чтобы навести порядок в делах за вечер</span>
             </h1>
 
             <p className="text-gray-400 text-base md:text-lg mb-8 max-w-md mx-auto lg:mx-0 leading-relaxed">
-              Готовые Google Таблицы для привычек, задач, финансов и планирования.
-              Уже используют <span className="text-white font-semibold">800+ казахстанцев</span> — просто скопируй и начни.
+              Без подписки. Скопируй в свой Google Drive — и пользуйся всю жизнь.
+              Уже используют <span className="text-white font-semibold">800+ человек</span> в Казахстане.
             </p>
 
             {/* CTA */}
             <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-8">
+              <Button
+                size="lg"
+                variant="accent"
+                onClick={() => openCheckout(bundle)}
+                rightIcon={
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                  </svg>
+                }
+              >
+                Купить bundle · {bundle.price.toLocaleString('ru-RU')} ₸
+                {off && <span className="ml-1 text-xs font-bold opacity-90">−{off}%</span>}
+              </Button>
               <a
                 href="#catalog"
-                className="bg-white text-black font-semibold px-8 py-3.5 rounded-full hover:bg-gray-100 transition-colors text-sm"
+                className="inline-flex items-center justify-center gap-2 font-semibold text-sm text-white/90 hover:text-white px-7 py-3.5 rounded-xl border border-white/20 hover:border-white/40 transition-colors"
               >
                 Смотреть каталог
               </a>
             </div>
 
             {/* Рейтинг */}
-            <div className="flex items-center gap-3 justify-center lg:justify-start">
+            <div className="flex items-center gap-3 justify-center lg:justify-start flex-wrap">
               <div className="flex items-center gap-0.5">
                 {[1,2,3,4,5].map(s => (
                   <svg key={s} className="w-4 h-4 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
@@ -41,9 +64,7 @@ export default function Hero() {
                 ))}
               </div>
               <span className="text-white font-semibold text-sm">4.8</span>
-              <span className="text-gray-500 text-sm">· 693 отзыва</span>
-              <span className="text-gray-700">·</span>
-              <span className="text-gray-400 text-sm">800+ покупателей</span>
+              <span className="text-gray-500 text-sm">· 800+ покупателей · 693 отзыва</span>
             </div>
           </div>
 
