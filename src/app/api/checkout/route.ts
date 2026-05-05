@@ -52,6 +52,14 @@ export async function POST(req: Request) {
     if (sbError) throw new Error(`Supabase error: ${sbError.message}`);
 
   // 5. ЗАПРОС В APIPAY.KZ
+  // callback_url включает APIPAY_WEBHOOK_SECRET — APIPAY эхо-возвращает URL,
+  // а наш webhook сравнивает его с env timing-safe сравнением.
+  const webhookSecret = process.env.APIPAY_WEBHOOK_SECRET
+  if (!webhookSecret) {
+    throw new Error('APIPAY_WEBHOOK_SECRET is not configured')
+  }
+  const callbackUrl = `https://myplaner.asia/api/webhooks/apipay?secret=${encodeURIComponent(webhookSecret)}`
+
   const apiPayResponse = await fetch('https://bpapi.bazarbay.site/api/invoices', {
     method: 'POST',
     headers: {
@@ -63,7 +71,7 @@ export async function POST(req: Request) {
       phone_number: phone,
       external_order_id: orderId,
       description: 'Оплата заказа в MyPlaner',
-      callback_url: 'https://myplaner.asia/api/webhooks/apipay',
+      callback_url: callbackUrl,
       success_url: 'https://myplaner.asia/success'
     })
   });
