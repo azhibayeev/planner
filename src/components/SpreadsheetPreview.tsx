@@ -181,9 +181,6 @@ export default function SpreadsheetPreview() {
         </div>
       </div>
 
-      <p className="text-center text-gray-500 text-xs mt-3">
-        Так выглядит трекер привычек
-      </p>
     </div>
   )
 }

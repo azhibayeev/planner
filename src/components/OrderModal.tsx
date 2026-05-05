@@ -164,11 +164,6 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-sm leading-snug">{product.name}</p>
               <Price price={product.price} oldPrice={product.oldPrice} size="sm" className="mt-1" />
-              {savings && (
-                <p className="text-emerald-600 text-xs font-medium mt-0.5">
-                  Экономия {savings.toLocaleString('ru-RU')} ₸
-                </p>
-              )}
             </div>
           </div>
 
@@ -220,12 +215,6 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
                 inputMode="tel"
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               />
-              <p className="text-xs text-ink-soft mt-1">
-                Нет Kaspi?{' '}
-                <a href="http://wa.me/77079297008" target="_blank" rel="noopener noreferrer" className="text-emerald-600 font-medium hover:underline">
-                  Напишите нам в WhatsApp
-                </a>
-              </p>
             </div>
 
             {error && (
@@ -245,12 +234,6 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
 
             {/* Итого */}
             <div className="border-t border-gray-100 pt-3 flex flex-col gap-1">
-              {savings && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-ink-muted">Скидка</span>
-                  <span className="text-emerald-600 font-medium">−{savings.toLocaleString('ru-RU')} ₸</span>
-                </div>
-              )}
               <div className="flex justify-between">
                 <span className="font-bold text-base">Итого</span>
                 <span className="font-bold text-base">{product.price.toLocaleString('ru-RU')} ₸</span>
@@ -261,8 +244,24 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
             <GuaranteeBadge />
 
             <Button type="submit" loading={loading} size="lg" className="w-full">
-              {loading ? 'Создаём счёт...' : `Оплатить · ${product.price.toLocaleString('ru-RU')} ₸`}
+              {loading ? 'Создаём счёт...' : `Оплатить через Kaspi · ${product.price.toLocaleString('ru-RU')} ₸`}
             </Button>
+
+            {/* Альтернативный путь — для тех, у кого нет Kaspi */}
+            <div className="flex items-center gap-3 text-xs text-ink-soft my-1">
+              <span className="flex-1 h-px bg-gray-200" />
+              <span>нет Kaspi?</span>
+              <span className="flex-1 h-px bg-gray-200" />
+            </div>
+            <a
+              href={`http://wa.me/77079297008?text=${encodeURIComponent(`Здравствуйте! Хочу оформить «${product.name}» за ${product.price.toLocaleString('ru-RU')} ₸. Подскажите, как оплатить.`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#1ebe5d] active:scale-[0.98] text-white font-semibold py-3 rounded-xl transition-all"
+            >
+              <Image src="/icons/whatsapp.png" alt="" width={18} height={18} aria-hidden="true" />
+              Связаться через WhatsApp
+            </a>
 
             <TrustBadges />
           </form>
