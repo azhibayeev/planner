@@ -182,7 +182,7 @@ export default function SpreadsheetPreview() {
       </div>
 
       <p className="text-center text-gray-500 text-xs mt-3">
-        Пример — скопируй в свой Google Drive за 1 клик
+        Так выглядит трекер привычек
       </p>
     </div>
   )

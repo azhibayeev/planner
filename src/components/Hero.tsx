@@ -21,9 +21,9 @@ export default function Hero() {
           {/* Левая колонка — текст (на мобилке идёт второй) */}
           <div className="text-center lg:text-left order-2 lg:order-1">
             <h1 className="text-4xl md:text-5xl font-extrabold leading-tight mb-5">
-              5 готовых Google Таблиц,
+              5 готовых Google Таблиц
               <br />
-              <span className="text-accent">чтобы навести порядок в делах за вечер</span>
+              <span className="text-accent">для привычек, задач и финансов</span>
             </h1>
 
             <p className="text-gray-400 text-base md:text-lg mb-8 max-w-md mx-auto lg:mx-0 leading-relaxed">
@@ -32,19 +32,18 @@ export default function Hero() {
             </p>
 
             {/* CTA */}
-            <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-8">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-4">
               <Button
                 size="lg"
                 variant="accent"
                 onClick={() => openCheckout(bundle)}
-                rightIcon={
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                  </svg>
-                }
+                className="whitespace-nowrap"
               >
-                Купить bundle · {bundle.price.toLocaleString('ru-RU')} ₸
-                {off && <span className="ml-1 text-xs font-bold opacity-90">−{off}%</span>}
+                <span>Все 5 таблиц</span>
+                <span className="font-extrabold">· {bundle.price.toLocaleString('ru-RU')} ₸</span>
+                {bundle.oldPrice && (
+                  <span className="text-white/70 line-through font-normal text-xs">{bundle.oldPrice.toLocaleString('ru-RU')} ₸</span>
+                )}
               </Button>
               <a
                 href="#catalog"
@@ -53,6 +52,16 @@ export default function Hero() {
                 Смотреть каталог
               </a>
             </div>
+
+            {/* Discount badge — отдельно, заметно */}
+            {off && (
+              <div className="mb-8 flex items-center gap-2 justify-center lg:justify-start">
+                <span className="bg-red-500 text-white text-xs font-extrabold px-2.5 py-1 rounded-md">−{off}%</span>
+                <span className="text-emerald-400 text-sm font-semibold">
+                  Экономия {(bundle.oldPrice! - bundle.price).toLocaleString('ru-RU')} ₸
+                </span>
+              </div>
+            )}
 
             {/* Рейтинг */}
             <div className="flex items-center gap-3 justify-center lg:justify-start flex-wrap">
