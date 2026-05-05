@@ -39,10 +39,10 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
   }, [])
 
   useEffect(() => {
-    if (!product) return
+    if (!initialProduct) return
     const eventId = uuidv4()
     const { fbp, fbc } = getFbCookies()
-    pixelTrack('InitiateCheckout', { content_ids: [product.id], value: product.price, currency: 'KZT' }, eventId)
+    pixelTrack('InitiateCheckout', { content_ids: [initialProduct.id], value: initialProduct.price, currency: 'KZT' }, eventId)
     fetch('/api/capi', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -50,10 +50,10 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
         eventName: 'InitiateCheckout', eventId,
         sourceUrl: window.location.href,
         userData: { fbp, fbc },
-        customData: { content_ids: [product.id], value: product.price, currency: 'KZT' },
+        customData: { content_ids: [initialProduct.id], value: initialProduct.price, currency: 'KZT' },
       }),
     })
-  }, [product])
+  }, [initialProduct])
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault()
