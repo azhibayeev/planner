@@ -54,7 +54,7 @@ export default function ProductCatalog() {
                   onClick={(e) => { e.stopPropagation(); openCheckout(bundle) }}
                   className="whitespace-nowrap"
                 >
-                  Купить за {bundle.price.toLocaleString('ru-RU')} ₸
+                  Купить
                 </Button>
               </div>
             </div>

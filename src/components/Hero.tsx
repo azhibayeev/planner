@@ -53,13 +53,9 @@ export default function Hero() {
               </a>
             </div>
 
-            {/* Discount badge — отдельно, заметно */}
             {off && (
               <div className="mb-8 flex items-center gap-2 justify-center lg:justify-start">
                 <span className="bg-red-500 text-white text-xs font-extrabold px-2.5 py-1 rounded-md">−{off}%</span>
-                <span className="text-emerald-400 text-sm font-semibold">
-                  Экономия {(bundle.oldPrice! - bundle.price).toLocaleString('ru-RU')} ₸
-                </span>
               </div>
             )}
 

@@ -162,10 +162,10 @@ export default function ProductCard({ product, onBuy, onViewDetails }: Props) {
 
         <p className="text-ink-muted text-sm leading-relaxed flex-1 line-clamp-2">{product.description}</p>
 
-        <Price price={product.price} oldPrice={product.oldPrice} size="md" showSavings className="mt-1" />
+        <Price price={product.price} oldPrice={product.oldPrice} size="md" className="mt-1" />
 
         <Button onClick={handleBuyClick} className="mt-2">
-          Купить за {product.price.toLocaleString('ru-RU')} ₸
+          Купить
         </Button>
         <button
           type="button"

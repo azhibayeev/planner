@@ -39,8 +39,7 @@ export default function StickyBuyButton() {
             onClick={() => openCheckout(bundle)}
             className="w-full bg-primary text-white font-semibold py-3.5 rounded-xl text-sm flex items-center justify-center gap-2 active:scale-[0.99] transition-transform"
           >
-            <span>Забрать все 5 таблиц · {bundle.price.toLocaleString('ru-RU')} ₸</span>
-            <span className="text-white/60 line-through text-xs font-normal">{bundle.oldPrice!.toLocaleString('ru-RU')} ₸</span>
+            Забрать все 5 таблиц
           </button>
         </div>
       </div>
