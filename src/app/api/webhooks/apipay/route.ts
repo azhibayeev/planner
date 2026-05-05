@@ -3,15 +3,7 @@ import { timingSafeEqual } from 'crypto'
 import { supabaseAdmin } from '../../../../lib/supabase'
 import { sendCapiEvent } from '../../../../lib/capi'
 import { sendOrderEmail, sendPendingReminderEmail, sendPaymentErrorEmail } from '../../../../lib/email'
-
-const PRODUCT_NAMES: Record<string, string> = {
-  'habit-tracker': 'Трекер привычек',
-  'task-tracker': 'Трекер задач',
-  'budget': 'Финансовый планер',
-  'planer-week': 'Планер на неделю',
-  'pink-habit-tracker': 'Розовый трекер привычек',
-  'bundle-all': 'Все таблицы',
-}
+import { PRODUCT_NAMES } from '../../../../lib/orderHelpers'
 
 function secretsMatch(provided: string | null, expected: string | undefined): boolean {
   if (!expected || !provided) return false
