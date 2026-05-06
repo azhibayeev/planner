@@ -17,6 +17,10 @@ export default function PixelScript({ pixelId }: Props) {
           t.src=v;s=b.getElementsByTagName(e)[0];
           s.parentNode.insertBefore(t,s)}(window, document,'script',
           'https://connect.facebook.net/en_US/fbevents.js');
+          // Отключаем auto-config: Meta Pixel сам шёл события (ViewContent через JSON-LD,
+          // SubmitApplication через формы) без нашего event_id, что ломает дедупликацию
+          // Pixel ↔ CAPI. Хотим только наши явные trackEvent() вызовы.
+          fbq('set', 'autoConfig', 'false', '${pixelId}');
           fbq('init', '${pixelId}');
         `}
       </Script>

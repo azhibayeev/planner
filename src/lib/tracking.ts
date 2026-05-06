@@ -32,15 +32,27 @@ export function trackEvent(opts: TrackOptions) {
   const userData: Record<string, unknown> = { fbp, fbc }
   if (opts.email) userData.email = opts.email
 
-  fetch('/api/capi', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      eventName: opts.eventName,
-      eventId,
-      sourceUrl: window.location.href,
-      userData,
-      customData,
-    }),
-  }).catch(() => {})
+  const body = JSON.stringify({
+    eventName: opts.eventName,
+    eventId,
+    sourceUrl: window.location.href,
+    userData,
+    customData,
+  })
+
+  // sendBeacon гарантированно долетает даже если пользователь сразу
+  // закрыл вкладку или ушёл на другую страницу. Fetch в этих случаях
+  // отменяется и CAPI событие теряется → дедупликация ломается.
+  const sent = typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function'
+    ? navigator.sendBeacon('/api/capi', new Blob([body], { type: 'application/json' }))
+    : false
+
+  if (!sent) {
+    fetch('/api/capi', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+      keepalive: true,
+    }).catch(() => {})
+  }
 }
