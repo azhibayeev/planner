@@ -31,20 +31,13 @@ export const metadata: Metadata = {
     siteName: 'Planer.Shop',
     locale: 'ru_RU',
     type: 'website',
-    images: [
-      {
-        url: '/previews/habit-tracker-cover.webp',
-        width: 1200,
-        height: 630,
-        alt: 'Planer.Shop — Google Таблицы для продуктивности',
-      },
-    ],
+    // OG image берётся из app/opengraph-image.tsx (динамическая генерация)
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Planer.Shop — Google Таблицы для продуктивности',
     description: 'Готовые Google Таблицы для трекинга привычек, задач, финансов и планирования.',
-    images: ['/previews/habit-tracker-cover.webp'],
+    // Twitter card image тоже подхватится из opengraph-image
   },
   robots: {
     index: true,
