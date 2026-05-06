@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase'
 import { productName, statusInfo, formatTenge, formatDateTime } from '@/lib/orderHelpers'
 import OrdersFilters from './OrdersFilters'
+import RefundButton from './RefundButton'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -114,12 +115,13 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
                 <th className="px-4 py-3 font-medium">Товар</th>
                 <th className="px-4 py-3 font-medium text-right">Сумма</th>
                 <th className="px-4 py-3 font-medium">Статус</th>
+                <th className="px-4 py-3 font-medium"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {orders.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-gray-400">
+                  <td colSpan={7} className="px-4 py-12 text-center text-gray-400">
                     За выбранный период ничего не найдено
                   </td>
                 </tr>
@@ -145,6 +147,11 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
                         <span className={`inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full border ${TONE_CLASSES[s.tone]}`}>
                           {s.label}
                         </span>
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        {o.status === 'paid' && (
+                          <RefundButton orderId={o.order_id} amount={o.amount} />
+                        )}
                       </td>
                     </tr>
                   )

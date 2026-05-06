@@ -17,6 +17,7 @@ export const STATUS_LABELS: Record<string, { label: string; tone: 'success' | 'w
   pending: { label: 'В ожидании', tone: 'warning' },
   pending_reminded: { label: 'Напоминание отправлено', tone: 'warning' },
   failed: { label: 'Ошибка', tone: 'danger' },
+  refunded: { label: 'Возврат', tone: 'neutral' },
 }
 
 export function statusInfo(status: string | null | undefined) {
