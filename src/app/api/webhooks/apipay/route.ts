@@ -21,7 +21,17 @@ export async function POST(req: Request) {
   const expectedSecret = process.env.APIPAY_WEBHOOK_SECRET
 
   if (!secretsMatch(providedSecret, expectedSecret)) {
-    console.warn('[Webhook] Unauthorized — secret mismatch or missing')
+    console.warn('[Webhook] Unauthorized — secret mismatch or missing', JSON.stringify({
+      url: req.url,
+      hasProvided: providedSecret !== null,
+      providedLength: providedSecret?.length ?? 0,
+      expectedLength: expectedSecret?.length ?? 0,
+      headers: {
+        host: req.headers.get('host'),
+        userAgent: req.headers.get('user-agent'),
+        forwardedFor: req.headers.get('x-forwarded-for'),
+      },
+    }))
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
