@@ -32,8 +32,8 @@ function checkEnv(): CheckResult {
     'NEXT_PUBLIC_SUPABASE_URL',
     'SUPABASE_SERVICE_ROLE_KEY',
     'APIPAY_API_KEY',
-    'APIPAY_WEBHOOK_SECRET',
     'RESEND_API_KEY',
+    'ADMIN_PASSWORD',
   ]
   const missing = required.filter((k) => !process.env[k])
   if (missing.length) return { ok: false, error: `missing: ${missing.join(',')}` }
