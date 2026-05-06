@@ -32,19 +32,26 @@ export default function Hero() {
             </p>
 
             {/* CTA */}
-            <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-4">
-              <Button
-                size="lg"
-                variant="accent"
-                onClick={() => openCheckout(bundle)}
-                className="whitespace-nowrap"
-              >
-                <span>Все 5 таблиц</span>
-                <span className="font-extrabold">· {bundle.price.toLocaleString('ru-RU')} ₸</span>
-                {bundle.oldPrice && (
-                  <span className="text-white/70 line-through font-normal text-xs">{bundle.oldPrice.toLocaleString('ru-RU')} ₸</span>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-8">
+              <div className="relative inline-block">
+                <Button
+                  size="lg"
+                  variant="accent"
+                  onClick={() => openCheckout(bundle)}
+                  className="whitespace-nowrap w-full sm:w-auto"
+                >
+                  <span>Все 5 таблиц</span>
+                  <span className="font-extrabold">· {bundle.price.toLocaleString('ru-RU')} ₸</span>
+                  {bundle.oldPrice && (
+                    <span className="text-white/70 line-through font-normal text-xs">{bundle.oldPrice.toLocaleString('ru-RU')} ₸</span>
+                  )}
+                </Button>
+                {off && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[11px] font-extrabold px-2 py-0.5 rounded-md shadow-md ring-2 ring-black">
+                    −{off}%
+                  </span>
                 )}
-              </Button>
+              </div>
               <a
                 href="#catalog"
                 className="inline-flex items-center justify-center gap-2 font-semibold text-sm text-white/90 hover:text-white px-7 py-3.5 rounded-xl border border-white/20 hover:border-white/40 transition-colors"
@@ -52,12 +59,6 @@ export default function Hero() {
                 Смотреть каталог
               </a>
             </div>
-
-            {off && (
-              <div className="mb-8 flex items-center gap-2 justify-center lg:justify-start">
-                <span className="bg-red-500 text-white text-xs font-extrabold px-2.5 py-1 rounded-md">−{off}%</span>
-              </div>
-            )}
 
             {/* Рейтинг */}
             <div className="flex items-center gap-3 justify-center lg:justify-start flex-wrap">
