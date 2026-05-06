@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Product, products } from '@/lib/products'
 import { trackEvent } from '@/lib/tracking'
@@ -17,12 +18,14 @@ interface Props {
 }
 
 export default function OrderModal({ product: initialProduct, onClose }: Props) {
+  const router = useRouter()
   const [product, setProduct] = useState<Product | null>(initialProduct)
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [sent, setSent] = useState(false)
+  const [orderId, setOrderId] = useState<string | null>(null)
   const submittingRef = useRef(false)
   // Защита от двойного fire в React Strict Mode (dev). На проде useEffect
   // и так вызывается один раз, ref здесь не мешает.
@@ -46,6 +49,44 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
     ymEcomAdd(initialProduct.id, initialProduct.name, initialProduct.price)
     ymGoal('initiate_checkout', { product_id: initialProduct.id, value: initialProduct.price })
   }, [initialProduct])
+
+  // После отправки формы поллим статус заказа.
+  // Когда APIPAY webhook пометит как 'paid' → редиректим на /success,
+  // там PurchaseTracker отправит Pixel Purchase с тем же event_id что webhook
+  // → Meta дедуплицирует.
+  useEffect(() => {
+    if (!sent || !orderId) return
+    let cancelled = false
+    const POLL_MS = 4000
+    const MAX_POLLS = 60 // ~4 минуты
+
+    let count = 0
+    const tick = async () => {
+      if (cancelled) return
+      count++
+      try {
+        const res = await fetch(`/api/orders/${orderId}/status`, { cache: 'no-store' })
+        if (res.ok) {
+          const data = await res.json()
+          if (data.status === 'paid') {
+            router.push('/success')
+            return
+          }
+        }
+      } catch {
+        // ignore — попробуем в следующий тик
+      }
+      if (count < MAX_POLLS) {
+        timer = setTimeout(tick, POLL_MS)
+      }
+    }
+
+    let timer = setTimeout(tick, POLL_MS)
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [sent, orderId, router])
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -75,6 +116,7 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
           content_ids: [product.id],
           order_id: data.orderId,
         }))
+        setOrderId(data.orderId)
         // CAPI события отправляем только после подтверждённого создания заказа
         // чтобы избежать дублей при повторных попытках после ошибки
         trackEvent({
@@ -117,11 +159,18 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
         <p className="text-ink-muted text-sm mb-4">
           Откройте приложение <strong>Kaspi</strong> на вашем телефоне и подтвердите оплату во вкладке «Платежи».
         </p>
-        <div className="bg-accent-soft border border-accent/30 rounded-xl px-4 py-3 mb-6 text-left">
+        <div className="bg-accent-soft border border-accent/30 rounded-xl px-4 py-3 mb-4 text-left">
           <p className="text-accent-hover text-sm font-semibold mb-0.5">📧 Доступ придёт на почту</p>
           <p className="text-amber-700 text-xs">
             Сразу после оплаты мы автоматически отправим ссылку на <strong>{email}</strong>. Проверьте папку «Спам», если письмо не пришло в течение 5 минут.
           </p>
+        </div>
+        <div className="flex items-center justify-center gap-2 text-xs text-ink-soft mb-6">
+          <svg className="w-3.5 h-3.5 animate-spin text-ink-muted" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+          </svg>
+          Ожидаем подтверждение от Kaspi…
         </div>
         <Button variant="primary" onClick={onClose} className="w-full mb-3">
           Понятно
