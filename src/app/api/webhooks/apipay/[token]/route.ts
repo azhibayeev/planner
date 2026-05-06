@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
 import { timingSafeEqual } from 'crypto'
-import { supabaseAdmin } from '../../../../lib/supabase'
-import { sendCapiEvent } from '../../../../lib/capi'
-import { sendOrderEmail, sendPendingReminderEmail, sendPaymentErrorEmail } from '../../../../lib/email'
-import { PRODUCT_NAMES } from '../../../../lib/orderHelpers'
+import { supabaseAdmin } from '@/lib/supabase'
+import { sendCapiEvent } from '@/lib/capi'
+import { sendOrderEmail, sendPendingReminderEmail, sendPaymentErrorEmail } from '@/lib/email'
+import { PRODUCT_NAMES } from '@/lib/orderHelpers'
 
-function secretsMatch(provided: string | null, expected: string | undefined): boolean {
+function secretsMatch(provided: string | undefined, expected: string | undefined): boolean {
   if (!expected || !provided) return false
   const a = Buffer.from(provided)
   const b = Buffer.from(expected)
@@ -13,25 +13,14 @@ function secretsMatch(provided: string | null, expected: string | undefined): bo
   return timingSafeEqual(a, b)
 }
 
-export async function POST(req: Request) {
-  // Auth: только запросы с правильным секретом в URL принимаем.
-  // APIPAY эхо-возвращает callback_url, который мы задаём при создании счёта.
-  const url = new URL(req.url)
-  const providedSecret = url.searchParams.get('secret')
+export async function POST(req: Request, { params }: { params: { token: string } }) {
+  // Auth: секрет передаём как часть пути URL.
+  // APIPAY режет query-параметры в callback_url, но путь сохраняет.
   const expectedSecret = process.env.APIPAY_WEBHOOK_SECRET
+  const providedSecret = params.token
 
   if (!secretsMatch(providedSecret, expectedSecret)) {
-    console.warn('[Webhook] Unauthorized — secret mismatch or missing', JSON.stringify({
-      url: req.url,
-      hasProvided: providedSecret !== null,
-      providedLength: providedSecret?.length ?? 0,
-      expectedLength: expectedSecret?.length ?? 0,
-      headers: {
-        host: req.headers.get('host'),
-        userAgent: req.headers.get('user-agent'),
-        forwardedFor: req.headers.get('x-forwarded-for'),
-      },
-    }))
+    console.warn('[Webhook] Unauthorized — token mismatch')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
