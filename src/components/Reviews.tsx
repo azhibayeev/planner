@@ -1,4 +1,7 @@
+'use client'
+
 import Image from 'next/image'
+import { useEffect, useState } from 'react'
 
 interface Review {
   name: string
@@ -77,19 +80,31 @@ function RatingBar({ stars, percent }: { stars: number; percent: number }) {
   )
 }
 
-function ReviewCard({ review }: { review: Review }) {
+function ReviewCard({ review, onPhotoClick }: { review: Review; onPhotoClick: (photo: string, alt: string) => void }) {
   return (
     <div className="border border-gray-200 rounded-2xl overflow-hidden flex flex-col bg-white hover:shadow-md transition-shadow">
       {review.photo && (
-        <div className="relative aspect-[3/4] bg-gray-100">
+        <button
+          type="button"
+          onClick={() => review.photo && onPhotoClick(review.photo, `Фото от ${review.name}`)}
+          className="relative aspect-[3/4] bg-gray-100 group cursor-zoom-in"
+          aria-label={`Открыть фото от ${review.name} в полный размер`}
+        >
           <Image
             src={review.photo}
             alt={`Фото от ${review.name}`}
             fill
-            className="object-cover"
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
             sizes="(max-width: 768px) 100vw, 33vw"
           />
-        </div>
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-end justify-end p-3">
+            <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/95 backdrop-blur-sm rounded-full p-2 shadow-md">
+              <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m-3-3h6" />
+              </svg>
+            </span>
+          </div>
+        </button>
       )}
 
       <div className="p-5 flex flex-col gap-3 flex-1">
@@ -122,7 +137,50 @@ function ReviewCard({ review }: { review: Review }) {
   )
 }
 
+function Lightbox({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) {
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = ''
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [onClose])
+
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <button
+        onClick={onClose}
+        aria-label="Закрыть"
+        className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      <div className="relative max-w-3xl max-h-full w-full" onClick={(e) => e.stopPropagation()}>
+        <Image
+          src={src}
+          alt={alt}
+          width={800}
+          height={1067}
+          className="object-contain w-full h-auto max-h-[90vh] rounded-xl"
+          sizes="(max-width: 768px) 100vw, 800px"
+        />
+      </div>
+    </div>
+  )
+}
+
 export default function Reviews() {
+  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null)
+
   return (
     <section className="py-16 px-4 bg-white">
       <div className="max-w-5xl mx-auto">
@@ -131,7 +189,6 @@ export default function Reviews() {
           <p className="text-gray-500">Показано 3 из 693 · 800+ клиентов уже пользуются нашими таблицами</p>
         </div>
 
-        {/* Сводный блок */}
         <div className="bg-gray-50 rounded-2xl p-6 mb-8 flex flex-col md:flex-row gap-6 items-center">
           <div className="text-center flex-shrink-0">
             <p className="text-6xl font-extrabold text-gray-900">4.8</p>
@@ -150,13 +207,18 @@ export default function Reviews() {
           </div>
         </div>
 
-        {/* Карточки отзывов */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {reviews.map((review, i) => (
-            <ReviewCard key={i} review={review} />
+            <ReviewCard
+              key={i}
+              review={review}
+              onPhotoClick={(src, alt) => setLightbox({ src, alt })}
+            />
           ))}
         </div>
       </div>
+
+      {lightbox && <Lightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
     </section>
   )
 }
