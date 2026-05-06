@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { Product, products } from '@/lib/products'
 import { trackEvent } from '@/lib/tracking'
 import { ymEcomAdd, ymGoal } from '@/lib/yandex'
+import { formatNationalPhone, getNationalDigits, toE164 } from '@/lib/phone'
 import Button from './ui/Button'
 import Price from './ui/Price'
 import TrustBadges, { GuaranteeBadge } from './ui/TrustBadges'
@@ -91,6 +92,13 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!product || submittingRef.current) return
+
+    // Валидация: ровно 10 цифр в national-формате
+    if (!getNationalDigits(phone)) {
+      setError('Введите телефон полностью — 10 цифр после +7')
+      return
+    }
+
     submittingRef.current = true
     setLoading(true)
     setError('')
@@ -100,7 +108,8 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email, phone,
+          email,
+          phone: toE164(phone),
           amount: product.price,
           product_id: product.id,
           items: [{ name: product.name, price: product.price, quantity: 1 }],
@@ -265,16 +274,21 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
               <label className="block text-sm font-medium mb-1.5">
                 Телефон <span className="text-ink-soft font-normal text-xs">— счёт придёт в Kaspi</span>
               </label>
-              <input
-                type="tel"
-                placeholder="+7 700 000 00 00"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                required
-                autoComplete="tel"
-                inputMode="tel"
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              />
+              <div className="flex border border-gray-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent">
+                <span className="px-3.5 py-3 bg-gray-50 border-r border-gray-200 text-sm font-medium text-ink-muted whitespace-nowrap select-none">
+                  +7
+                </span>
+                <input
+                  type="tel"
+                  placeholder="(700) 000-00-00"
+                  value={phone}
+                  onChange={(e) => setPhone(formatNationalPhone(e.target.value))}
+                  required
+                  autoComplete="tel-national"
+                  inputMode="numeric"
+                  className="flex-1 px-4 py-3 text-sm focus:outline-none w-full"
+                />
+              </div>
             </div>
 
             {error && (
