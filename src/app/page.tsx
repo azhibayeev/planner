@@ -8,6 +8,7 @@ import FAQ from '@/components/FAQ'
 import Footer from '@/components/Footer'
 import StickyBuyButton from '@/components/StickyBuyButton'
 import { CheckoutProvider } from '@/components/CheckoutContext'
+import { products } from '@/lib/products'
 
 const faqSchema = {
   '@context': 'https://schema.org',
@@ -42,12 +43,40 @@ const organizationSchema = {
   contactPoint: { '@type': 'ContactPoint', email: 'support@myplaner.asia', contactType: 'customer support' },
 }
 
+// Product schema с AggregateRating для bundle — главного товара.
+// Google показывает звёздочки и цену прямо в результатах поиска.
+const bundle = products.find(p => p.id === 'bundle-all')!
+const productSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: 'Все 5 таблиц — Planer.Shop',
+  description: 'Полный пакет: трекер привычек, трекер задач, финансовый планер, планер на неделю и розовый трекер. Готовые Google Таблицы — навсегда, без подписки.',
+  brand: { '@type': 'Brand', name: 'Planer.Shop' },
+  image: 'https://myplaner.asia/opengraph-image',
+  offers: {
+    '@type': 'Offer',
+    price: bundle.price,
+    priceCurrency: 'KZT',
+    availability: 'https://schema.org/InStock',
+    url: 'https://myplaner.asia/#catalog',
+    priceValidUntil: '2026-12-31',
+  },
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: '4.8',
+    reviewCount: 693,
+    bestRating: '5',
+    worstRating: '1',
+  },
+}
+
 export default function Home() {
   return (
     <main className="relative">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
       <CheckoutProvider>
         <Header />
         <Hero />
