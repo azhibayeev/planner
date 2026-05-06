@@ -1,51 +1,47 @@
 import { NextResponse } from 'next/server'
-import { createHmac, timingSafeEqual } from 'crypto'
 import { supabaseAdmin } from '@/lib/supabase'
 import { sendCapiEvent } from '@/lib/capi'
 import { sendOrderEmail, sendPendingReminderEmail, sendPaymentErrorEmail } from '@/lib/email'
 import { PRODUCT_NAMES } from '@/lib/orderHelpers'
 
-// Constant-time hex compare. Both strings must already be 'sha256=<hex>'.
-function signaturesMatch(a: string, b: string): boolean {
-  const aBuf = Buffer.from(a)
-  const bBuf = Buffer.from(b)
-  if (aBuf.length !== bBuf.length) return false
-  return timingSafeEqual(aBuf, bBuf)
+// На этом аккаунте APIPAY не шлёт X-Webhook-Signature, поэтому верификация
+// идёт через server-to-server запрос к их же API: достаём invoice по id
+// и сверяем status. Подделать ответ от APIPAY атакующий не может — это требует
+// либо нашего API key (хранится только в env прода), либо компрометации
+// инфраструктуры APIPAY.
+async function verifyInvoiceWithApipay(
+  invoiceId: number | string,
+  expectedStatus: string,
+  expectedExternalOrderId: string,
+): Promise<{ ok: true } | { ok: false; reason: string }> {
+  const apiKey = process.env.APIPAY_API_KEY
+  if (!apiKey) return { ok: false, reason: 'API key not configured' }
+
+  const ctrl = new AbortController()
+  const t = setTimeout(() => ctrl.abort(), 5000)
+  try {
+    const res = await fetch(`https://bpapi.bazarbay.site/api/invoices/${invoiceId}`, {
+      headers: { 'X-API-Key': apiKey },
+      signal: ctrl.signal,
+    })
+    clearTimeout(t)
+    if (!res.ok) return { ok: false, reason: `APIPAY GET returned ${res.status}` }
+    const data = await res.json()
+    if (data.status !== expectedStatus) {
+      return { ok: false, reason: `status mismatch: APIPAY says ${data.status}, webhook claimed ${expectedStatus}` }
+    }
+    if (data.external_order_id && data.external_order_id !== expectedExternalOrderId) {
+      return { ok: false, reason: `external_order_id mismatch: APIPAY says ${data.external_order_id}, webhook claimed ${expectedExternalOrderId}` }
+    }
+    return { ok: true }
+  } catch (e: unknown) {
+    clearTimeout(t)
+    return { ok: false, reason: `fetch exception: ${(e as Error)?.message ?? 'unknown'}` }
+  }
 }
 
 export async function POST(req: Request) {
-  // APIPAY подписывает webhook через HMAC-SHA256:
-  //   X-Webhook-Signature: sha256=<hex>
-  // Секрет — отдельный (выдаётся при создании webhook'а в дашборде ApiPay,
-  // не совпадает с API Key).
-  const signatureSecret = process.env.APIPAY_WEBHOOK_SIGNATURE_SECRET
-  const providedSignature = req.headers.get('x-webhook-signature') || ''
-
-  // Читаем raw body (нужно для HMAC), потом парсим как JSON.
   const rawBody = await req.text()
-
-  if (!signatureSecret) {
-    // Временный режим: секрет ещё не получен из дашборда APIPAY — пропускаем
-    // webhook'и без проверки и логируем все заголовки, чтобы посмотреть какой
-    // именно X-Webhook-Signature шлёт APIPAY на этом аккаунте.
-    console.warn('[Webhook] APIPAY_WEBHOOK_SIGNATURE_SECRET not set — allowing without verification (INSECURE)', JSON.stringify({
-      url: req.url,
-      hasProvidedSig: !!providedSignature,
-      headers: Object.fromEntries(req.headers.entries()),
-    }))
-  } else {
-    const expectedSignature = 'sha256=' + createHmac('sha256', signatureSecret).update(rawBody).digest('hex')
-    if (!providedSignature || !signaturesMatch(providedSignature, expectedSignature)) {
-      console.warn('[Webhook] Invalid signature', JSON.stringify({
-        url: req.url,
-        hasProvidedSig: !!providedSignature,
-        providedSigPrefix: providedSignature.slice(0, 14),
-        headers: Object.fromEntries(req.headers.entries()),
-        bodyPreview: rawBody.slice(0, 200),
-      }))
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
-    }
-  }
 
   try {
     const body = JSON.parse(rawBody)
@@ -58,6 +54,23 @@ export async function POST(req: Request) {
 
     if (!orderId) {
       return NextResponse.json({ error: 'Missing order_id' }, { status: 400 })
+    }
+
+    // Верификация: для статусов, которые меняют состояние заказа (paid/error),
+    // подтверждаем у самого APIPAY. Атакующий, знающий формат payload и
+    // external_order_id, не может подделать ответ от их API.
+    const invoiceId = invoice.id
+    const verifiedStatuses = new Set(['paid', 'success', 'error'])
+    if (verifiedStatuses.has(status)) {
+      if (!invoiceId) {
+        console.warn('[Webhook] Verified-status without invoice.id, rejecting', { orderId, status })
+        return NextResponse.json({ error: 'Missing invoice.id' }, { status: 400 })
+      }
+      const verification = await verifyInvoiceWithApipay(invoiceId, status, orderId)
+      if (!verification.ok) {
+        console.warn('[Webhook] APIPAY verification failed', { orderId, invoiceId, status, reason: verification.reason })
+        return NextResponse.json({ error: 'Verification failed', reason: verification.reason }, { status: 401 })
+      }
     }
 
     if (status === 'success' || status === 'paid') {
