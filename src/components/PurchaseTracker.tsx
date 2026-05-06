@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { pixelTrack, getFbCookies } from '@/lib/pixel'
+import { ymEcomPurchase, ymGoal } from '@/lib/yandex'
 import { v4 as uuidv4 } from 'uuid'
 
 export default function PurchaseTracker() {
@@ -44,6 +45,11 @@ export default function PurchaseTracker() {
           },
         }),
       })
+
+      // Yandex Metrica goal + ecommerce
+      const productId = order.content_ids?.[0] ?? 'unknown'
+      ymEcomPurchase(eventId, productId, productId, order.value ?? 0)
+      ymGoal('purchase', { value: order.value, product_id: productId })
 
       localStorage.removeItem('last_order')
     } catch {

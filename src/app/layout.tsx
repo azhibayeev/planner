@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import PixelScript from '@/components/PixelScript'
+import YandexMetrika from '@/components/YandexMetrika'
 
 const inter = Inter({
   subsets: ['latin', 'cyrillic'],
@@ -52,12 +53,14 @@ export const metadata: Metadata = {
 }
 
 const PIXEL_ID = process.env.NEXT_PUBLIC_PIXEL_ID || ''
+const YM_ID = process.env.NEXT_PUBLIC_YM_ID || ''
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ru">
       <body className={inter.className}>
         {PIXEL_ID && <PixelScript pixelId={PIXEL_ID} />}
+        {YM_ID && <YandexMetrika counterId={YM_ID} />}
         {children}
       </body>
     </html>

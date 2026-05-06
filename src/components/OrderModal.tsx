@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { Product, products } from '@/lib/products'
 import { trackEvent } from '@/lib/tracking'
+import { ymEcomAdd, ymGoal } from '@/lib/yandex'
 import Button from './ui/Button'
 import Price from './ui/Price'
 import TrustBadges, { GuaranteeBadge } from './ui/TrustBadges'
@@ -42,6 +43,8 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
       value: initialProduct.price,
       currency: 'KZT',
     })
+    ymEcomAdd(initialProduct.id, initialProduct.name, initialProduct.price)
+    ymGoal('initiate_checkout', { product_id: initialProduct.id, value: initialProduct.price })
   }, [initialProduct])
 
   const handleCheckout = async (e: React.FormEvent) => {
@@ -88,6 +91,7 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
           currency: 'KZT',
           email,
         })
+        ymGoal('checkout_submitted', { product_id: product.id, value: product.price })
         setSent(true)
       } else {
         setError(data.error || 'Ошибка при создании заказа. Попробуйте ещё раз.')

@@ -2,6 +2,7 @@
 
 import { Product } from '@/lib/products'
 import { trackEvent } from '@/lib/tracking'
+import { ymEcomDetail, ymGoal } from '@/lib/yandex'
 import Button from './ui/Button'
 import Badge from './ui/Badge'
 import Price, { discountPercent } from './ui/Price'
@@ -82,6 +83,8 @@ export default function ProductCard({ product, onBuy, onViewDetails }: Props) {
       value: product.price,
       currency: 'KZT',
     })
+    ymEcomDetail(product.id, product.name, product.price)
+    ymGoal('view_product', { product_id: product.id })
   }
 
   const handleCoverClick = () => {
