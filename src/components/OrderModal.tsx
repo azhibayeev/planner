@@ -44,6 +44,8 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
     trackEvent({
       eventName: 'InitiateCheckout',
       contentIds: [initialProduct.id],
+      contentName: initialProduct.name,
+      contentType: 'product',
       value: initialProduct.price,
       currency: 'KZT',
     })
@@ -117,30 +119,44 @@ export default function OrderModal({ product: initialProduct, onClose }: Props) 
       })
       const data = await response.json()
       if (data.success) {
-        // Сохраняем orderId — PurchaseTracker на /success использует его как event_id
-        // для дедупликации с серверным Purchase из webhook.
+        const phoneE164 = toE164(phone)
+        // Сохраняем orderId, email, phone — PurchaseTracker на /success
+        // использует order_id как event_id для дедупликации с серверным Purchase,
+        // а email/phone подтягивает в userData для матчинга в Pixel Purchase.
         localStorage.setItem('last_order', JSON.stringify({
           value: product.price,
           currency: 'KZT',
           content_ids: [product.id],
           order_id: data.orderId,
+          email,
+          phone: phoneE164,
+          product_name: product.name,
         }))
         setOrderId(data.orderId)
         // CAPI события отправляем только после подтверждённого создания заказа
-        // чтобы избежать дублей при повторных попытках после ошибки
+        // чтобы избежать дублей при повторных попытках после ошибки.
+        // Передаём email + phone + external_id (order_id) — это главное для EMQ.
         trackEvent({
           eventName: 'AddPaymentInfo',
           contentIds: [product.id],
+          contentName: product.name,
+          contentType: 'product',
           value: product.price,
           currency: 'KZT',
           email,
+          phone: phoneE164,
+          externalId: data.orderId,
         })
         trackEvent({
           eventName: 'Lead',
           contentIds: [product.id],
+          contentName: product.name,
+          contentType: 'product',
           value: product.price,
           currency: 'KZT',
           email,
+          phone: phoneE164,
+          externalId: data.orderId,
         })
         ymGoal('checkout_submitted', { product_id: product.id, value: product.price })
         setSent(true)

@@ -7,7 +7,11 @@ interface TrackOptions {
   value?: number
   currency?: string
   contentType?: string
+  contentName?: string
+  contentCategory?: string
   email?: string
+  phone?: string
+  externalId?: string
 }
 
 /**
@@ -26,11 +30,28 @@ export function trackEvent(opts: TrackOptions) {
   if (opts.value !== undefined) customData.value = opts.value
   if (opts.currency) customData.currency = opts.currency
   if (opts.contentType) customData.content_type = opts.contentType
+  if (opts.contentName) customData.content_name = opts.contentName
+  if (opts.contentCategory) customData.content_category = opts.contentCategory
+  // contents — best practice для cart/purchase событий
+  if (opts.value !== undefined && opts.contentIds.length > 0) {
+    customData.contents = opts.contentIds.map(id => ({
+      id,
+      quantity: 1,
+      item_price: opts.value,
+    }))
+    customData.num_items = opts.contentIds.length
+  }
 
   pixelTrack(opts.eventName, customData, eventId)
 
-  const userData: Record<string, unknown> = { fbp, fbc }
+  const userData: Record<string, unknown> = {
+    fbp,
+    fbc,
+    country: 'kz', // KZ-only бизнес — бесплатный signal
+  }
   if (opts.email) userData.email = opts.email
+  if (opts.phone) userData.phone = opts.phone
+  if (opts.externalId) userData.externalId = opts.externalId
 
   const body = JSON.stringify({
     eventName: opts.eventName,

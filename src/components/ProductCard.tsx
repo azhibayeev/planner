@@ -80,6 +80,7 @@ export default function ProductCard({ product, onBuy, onViewDetails }: Props) {
       eventName: 'ViewContent',
       contentIds: [product.id],
       contentType: 'product',
+      contentName: product.name,
       value: product.price,
       currency: 'KZT',
     })

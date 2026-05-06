@@ -98,21 +98,37 @@ export async function POST(req: Request) {
         .update({ status: 'paid' })
         .eq('order_id', orderId)
 
-      // 3. Отправляем Purchase в Meta CAPI
+      // 3. Отправляем Purchase в Meta CAPI с максимальным набором матчинг-параметров.
+      // client_phone из APIPAY payload в формате '87XXXXXXXXX' (KZ национальный) —
+      // Meta ждёт '77XXXXXXXXX' (с международным кодом). Конвертируем и передаём
+      // raw в helper, он сам нормализует и захеширует.
+      const rawPhone: string | undefined = invoice.client_phone || body.client_phone
+      const intlPhone = rawPhone && rawPhone.startsWith('8')
+        ? '7' + rawPhone.slice(1)
+        : rawPhone
+
       await sendCapiEvent({
         eventName: 'Purchase',
         eventId: orderId,
         sourceUrl: 'https://myplaner.asia',
         userData: {
           email: order.email,
+          phone: intlPhone,
           ip: order.ip_address,
           userAgent: order.user_agent,
           fbp: order.fbp,
           fbc: order.fbc,
+          externalId: orderId,
+          country: 'kz',
         },
         customData: {
           value: order.amount || 0,
           currency: 'KZT',
+          content_ids: [order.product_id],
+          content_type: 'product',
+          content_name: PRODUCT_NAMES[order.product_id] ?? order.product_id,
+          contents: [{ id: order.product_id, quantity: 1, item_price: order.amount || 0 }],
+          num_items: 1,
         },
       })
 
@@ -167,21 +183,30 @@ export async function POST(req: Request) {
         return NextResponse.json({ status: 'already_failed' })
       }
 
-      // Трекаем неуспешный платёж в Meta CAPI для ретаргетинга
+      // Трекаем неуспешный платёж в Meta CAPI для ретаргетинга.
+      const errPhone: string | undefined = invoice.client_phone || body.client_phone
+      const errIntlPhone = errPhone && errPhone.startsWith('8')
+        ? '7' + errPhone.slice(1)
+        : errPhone
+
       await sendCapiEvent({
         eventName: 'PaymentFailed',
         eventId: `failed_${orderId}`,
         sourceUrl: 'https://myplaner.asia',
         userData: {
           email: order.email,
+          phone: errIntlPhone,
           ip: order.ip_address,
           userAgent: order.user_agent,
           fbp: order.fbp,
           fbc: order.fbc,
+          externalId: orderId,
+          country: 'kz',
         },
         customData: {
           value: order.amount || 0,
           currency: 'KZT',
+          content_ids: [order.product_id],
           order_id: orderId,
         },
       })

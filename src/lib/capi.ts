@@ -14,11 +14,23 @@ export function sha256(value: string): string {
 
 export interface CapiUserData {
   email?: string
+  phone?: string
   name?: string
   ip?: string
   userAgent?: string
   fbp?: string
   fbc?: string
+  externalId?: string
+  country?: string
+  city?: string
+}
+
+/**
+ * Phone normalization per Meta spec: digits only, with country code, no leading zero.
+ * '+7 (701) 234-56-78' → '77012345678'
+ */
+function normalizePhoneForHash(phone: string): string {
+  return phone.replace(/\D/g, '')
 }
 
 export interface CapiEvent {
@@ -44,10 +56,22 @@ export async function sendCapiEvent(event: CapiEvent): Promise<void> {
   if (event.userData.email) {
     userData.em = [sha256(event.userData.email)]
   }
+  if (event.userData.phone) {
+    userData.ph = [sha256(normalizePhoneForHash(event.userData.phone))]
+  }
   if (event.userData.name) {
     const parts = event.userData.name.trim().split(' ')
-    userData.fn = sha256(parts[0] || '')
-    if (parts[1]) userData.ln = sha256(parts[1])
+    userData.fn = [sha256(parts[0] || '')]
+    if (parts[1]) userData.ln = [sha256(parts[1])]
+  }
+  if (event.userData.externalId) {
+    userData.external_id = [sha256(event.userData.externalId)]
+  }
+  if (event.userData.country) {
+    userData.country = [sha256(event.userData.country.toLowerCase())]
+  }
+  if (event.userData.city) {
+    userData.ct = [sha256(event.userData.city.toLowerCase())]
   }
   if (event.userData.ip) {
     userData.client_ip_address = event.userData.ip
