@@ -89,12 +89,6 @@ function ReviewCard({ review }: { review: Review }) {
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 33vw"
           />
-          <div className="absolute top-2 right-2 bg-white/95 backdrop-blur-sm rounded-full px-2.5 py-1 inline-flex items-center gap-1 shadow-sm">
-            <svg className="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-            </svg>
-            <span className="text-[10px] font-semibold text-emerald-700">Реальное фото</span>
-          </div>
         </div>
       )}
 
