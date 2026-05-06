@@ -1,31 +1,54 @@
 import { NextResponse } from 'next/server'
-import { timingSafeEqual } from 'crypto'
+import { createHmac, timingSafeEqual } from 'crypto'
 import { supabaseAdmin } from '@/lib/supabase'
 import { sendCapiEvent } from '@/lib/capi'
 import { sendOrderEmail, sendPendingReminderEmail, sendPaymentErrorEmail } from '@/lib/email'
 import { PRODUCT_NAMES } from '@/lib/orderHelpers'
 
-function secretsMatch(provided: string | undefined, expected: string | undefined): boolean {
-  if (!expected || !provided) return false
-  const a = Buffer.from(provided)
-  const b = Buffer.from(expected)
-  if (a.length !== b.length) return false
-  return timingSafeEqual(a, b)
+// Constant-time hex compare. Both strings must already be 'sha256=<hex>'.
+function signaturesMatch(a: string, b: string): boolean {
+  const aBuf = Buffer.from(a)
+  const bBuf = Buffer.from(b)
+  if (aBuf.length !== bBuf.length) return false
+  return timingSafeEqual(aBuf, bBuf)
 }
 
-export async function POST(req: Request, { params }: { params: { token: string } }) {
-  // Auth: секрет передаём как часть пути URL.
-  // APIPAY режет query-параметры в callback_url, но путь сохраняет.
-  const expectedSecret = process.env.APIPAY_WEBHOOK_SECRET
-  const providedSecret = params.token
+export async function POST(req: Request) {
+  // APIPAY подписывает webhook через HMAC-SHA256:
+  //   X-Webhook-Signature: sha256=<hex>
+  // Секрет — отдельный (выдаётся при создании webhook'а в дашборде ApiPay,
+  // не совпадает с API Key).
+  const signatureSecret = process.env.APIPAY_WEBHOOK_SIGNATURE_SECRET
+  const providedSignature = req.headers.get('x-webhook-signature') || ''
 
-  if (!secretsMatch(providedSecret, expectedSecret)) {
-    console.warn('[Webhook] Unauthorized — token mismatch')
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  // Читаем raw body (нужно для HMAC), потом парсим как JSON.
+  const rawBody = await req.text()
+
+  if (!signatureSecret) {
+    // Временный режим: секрет ещё не получен из дашборда APIPAY — пропускаем
+    // webhook'и без проверки и логируем все заголовки, чтобы посмотреть какой
+    // именно X-Webhook-Signature шлёт APIPAY на этом аккаунте.
+    console.warn('[Webhook] APIPAY_WEBHOOK_SIGNATURE_SECRET not set — allowing without verification (INSECURE)', JSON.stringify({
+      url: req.url,
+      hasProvidedSig: !!providedSignature,
+      headers: Object.fromEntries(req.headers.entries()),
+    }))
+  } else {
+    const expectedSignature = 'sha256=' + createHmac('sha256', signatureSecret).update(rawBody).digest('hex')
+    if (!providedSignature || !signaturesMatch(providedSignature, expectedSignature)) {
+      console.warn('[Webhook] Invalid signature', JSON.stringify({
+        url: req.url,
+        hasProvidedSig: !!providedSignature,
+        providedSigPrefix: providedSignature.slice(0, 14),
+        headers: Object.fromEntries(req.headers.entries()),
+        bodyPreview: rawBody.slice(0, 200),
+      }))
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+    }
   }
 
   try {
-    const body = await req.json()
+    const body = JSON.parse(rawBody)
     console.log('Incoming Webhook:', JSON.stringify(body))
 
     // ApiPay шлёт данные внутри body.invoice, тест — на корневом уровне
