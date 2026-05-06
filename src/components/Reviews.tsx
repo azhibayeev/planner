@@ -36,20 +36,11 @@ const reviews: Review[] = [
     name: 'Канат С.',
     avatar: 'КС',
     avatarColor: 'bg-blue-500',
-    product: 'Трекер задач',
+    product: 'Трекер привычек',
     rating: 5,
     date: '28 марта 2026',
-    text: 'Работаю фрилансером и это просто находка. Все задачи, дедлайны и статусы в одном месте. Никакой лишней подписки — просто копируешь и работаешь. Уже рекомендую друзьям.',
+    text: 'Веду 6 привычек уже месяц. Раньше пробовал разные приложения — забивал через неделю. С таблицей проще: открыл, поставил галочку, закрыл. Никакой подписки, ничего не отвлекает.',
     photo: '/reviews/review-2.webp',
-  },
-  {
-    name: 'Аружан Т.',
-    avatar: 'АТ',
-    avatarColor: 'bg-indigo-500',
-    product: 'Планер на неделю',
-    rating: 4,
-    date: '15 марта 2026',
-    text: 'Хороший планировщик. Каждое воскресенье выделяю 10 минут — расставляю задачи на неделю и потом просто работаю по списку. Всё чётко и без лишнего.',
   },
 ]
 
@@ -90,13 +81,13 @@ function ReviewCard({ review }: { review: Review }) {
   return (
     <div className="border border-gray-200 rounded-2xl overflow-hidden flex flex-col bg-white hover:shadow-md transition-shadow">
       {review.photo && (
-        <div className="relative aspect-[4/3] bg-gray-100">
+        <div className="relative aspect-[3/4] bg-gray-100">
           <Image
             src={review.photo}
             alt={`Фото от ${review.name}`}
             fill
             className="object-cover"
-            sizes="(max-width: 768px) 100vw, 50vw"
+            sizes="(max-width: 768px) 100vw, 33vw"
           />
           <div className="absolute top-2 right-2 bg-white/95 backdrop-blur-sm rounded-full px-2.5 py-1 inline-flex items-center gap-1 shadow-sm">
             <svg className="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,8 +133,8 @@ export default function Reviews() {
     <section className="py-16 px-4 bg-white">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
-          <h2 className="text-3xl font-extrabold mb-3">Отзывы покупателей</h2>
-          <p className="text-gray-500">Более 800 клиентов уже пользуются нашими таблицами</p>
+          <h2 className="text-3xl font-extrabold mb-3">Свежие отзывы покупателей</h2>
+          <p className="text-gray-500">Показано 3 из 693 · 800+ клиентов уже пользуются нашими таблицами</p>
         </div>
 
         {/* Сводный блок */}
@@ -166,7 +157,7 @@ export default function Reviews() {
         </div>
 
         {/* Карточки отзывов */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {reviews.map((review, i) => (
             <ReviewCard key={i} review={review} />
           ))}
